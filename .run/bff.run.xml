@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="bff" type="Application" factoryName="Application">
+    <option name="envFilePaths">
+      <option value="$PROJECT_DIR$/src/main/resources/.env" />
+    </option>
+    <option name="MAIN_CLASS_NAME" value="com.certimetergroup.easycv.bffwebapp.BffwebappApplication" />
+    <module name="bffwebapp" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
