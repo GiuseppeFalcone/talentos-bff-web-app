@@ -8,17 +8,21 @@ import com.certimetergroup.easycv.commons.exception.FailureException;
 import com.certimetergroup.easycv.commons.utility.HttpHeaderUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import java.io.IOException;
 import java.util.Set;
 
-@Order(2)
+@Order(1)
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationMiddleware extends OncePerRequestFilter {
@@ -28,7 +32,7 @@ public class JwtAuthenticationMiddleware extends OncePerRequestFilter {
     private final Set<String> excludedPaths = Set.of("/api/bff-web-app/auth", "/api/bff-web-app/docs");
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         try {
             String accessToken = HttpHeaderUtil.sanitizeAccessToken(request.getHeader("Authorization"));
 
@@ -42,16 +46,15 @@ public class JwtAuthenticationMiddleware extends OncePerRequestFilter {
             requestContext.setAccessToken(accessToken);
 
             filterChain.doFilter(request, response);
-        } catch (Exception exception) {
+        } catch (FailureException exception) {
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+        if (request.getMethod().equalsIgnoreCase("OPTIONS"))
             return true;
-        }
 
         String path = request.getRequestURI();
         return excludedPaths.stream().anyMatch(path::startsWith);

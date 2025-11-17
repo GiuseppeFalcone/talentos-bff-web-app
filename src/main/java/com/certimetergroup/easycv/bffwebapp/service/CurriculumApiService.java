@@ -9,6 +9,7 @@ import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLigh
 import com.certimetergroup.easycv.commons.response.dto.curriculum.ProjectDomainOptionDto;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.create.CreateCurriculumDto;
 import com.certimetergroup.easycv.commons.response.dto.domain.DomainDto;
+import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,8 @@ import java.util.stream.Stream;
 public class CurriculumApiService {
 
     private final CurriculumApiClient curriculumApiClient;
-    private final DomainApiClient domainApiClient;
+    private final DomainApiService domainApiService;
+    private final UserApiService userApiService;
 
     public PagedResponseDto<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds, Long domainId, Long domainOptionId) {
         return curriculumApiClient.getCurriculums(page, pageSize, userIds, domainId, domainOptionId);
@@ -38,19 +40,25 @@ public class CurriculumApiService {
         }
         CurriculumDto curriculum = optionalCurriculum.get();
 
+        Optional<UserDto> optionalUserDto = userApiService.getUserById(curriculum.getUserId());
+        if (optionalUserDto.isEmpty())
+            return Optional.empty();
+        UserDto user = optionalUserDto.get();
+
         Map<Long, Set<Long>> domainRequirements = collectDomainRequirements(curriculum);
 
         Set<DomainDto> domains = domainRequirements.entrySet().stream()
                 .map(entry -> {
                     Long domainId = entry.getKey();
                     Set<Long> optionIds = entry.getValue();
-                    return domainApiClient.getDomain(domainId, optionIds);
+                    return domainApiService.getDomain(domainId, optionIds);
                 })
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
 
         CurriculumDetailDto detailDto = CurriculumDetailDto.builder()
+                .user(user)
                 .curriculum(curriculum)
                 .domains(domains)
                 .build();

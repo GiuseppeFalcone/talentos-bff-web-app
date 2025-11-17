@@ -23,6 +23,10 @@ public class UserApiService {
         return userLightDto.get();
     }
 
+    public Optional<UserDto> getUserById(Long userId) {
+        return userApiClient.getUserById(userId);
+    }
+
     public Optional<UserDto> patchUserData(UserLightDto userLightDto) {
         return userApiClient.patchUserData(userLightDto);
     }

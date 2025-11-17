@@ -50,11 +50,12 @@ public class AuthenticationController {
                 ));
     }
 
-    @PostMapping("/login/refresh")
+    @PostMapping("/refresh")
     public ResponseEntity<Response<AccAndRefresh>> handleLoginRefresh(
             @RequestBody RefreshToken refreshTokenReq,
             @RequestHeader(value = "Authorization") @NotBlank(message = "Access token in header required") String accessToken) {
-        Long userId = jwtService.getClaimFromAccessToken(HttpHeaderUtil.sanitizeAccessToken(accessToken), Claims.SUBJECT, Long.class);
+        Long userId = Long.decode(jwtService.getClaimFromAccessToken(HttpHeaderUtil.sanitizeAccessToken(accessToken), Claims.SUBJECT, String.class));
+        requestContext.setAccessToken(HttpHeaderUtil.sanitizeAccessToken(accessToken));
 
         UserLightDto userLightDto = userApiService.getRefreshTokenByUserId(userId);
         String refreshTokenDb = userLightDto.getRefreshToken();
