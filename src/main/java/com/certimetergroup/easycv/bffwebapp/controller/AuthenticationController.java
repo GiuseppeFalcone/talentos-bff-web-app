@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @Validated
 @RestController
@@ -38,7 +37,7 @@ public class AuthenticationController {
         String[] tokens = jwtService.generateLoginTokens(userLightDto);
 
         requestContext.setAccessToken(tokens[0]);
-        if (!oldRefreshToken.equals(tokens[1]))
+        if (oldRefreshToken == null || !oldRefreshToken.equals(tokens[1]))
             userApiService.patchUserData(userLightDto);
 
         return ResponseEntity.ok().body(

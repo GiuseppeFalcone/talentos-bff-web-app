@@ -6,10 +6,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
+@Data
 @Component
 @RequestScope
-@Data
-@NoArgsConstructor
 public class RequestContext {
     private Long userId;
     private UserRoleEnum userRole;

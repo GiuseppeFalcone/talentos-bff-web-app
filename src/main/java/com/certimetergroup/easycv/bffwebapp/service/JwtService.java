@@ -72,7 +72,7 @@ public class JwtService {
     public String[] generateLoginTokens(UserLightDto userLightDto) {
         String uuid;
         String oldRefreshToken = userLightDto.getRefreshToken();
-        if (!this.isRefreshTokenExpiring(userLightDto.getRefreshToken())) {
+        if (oldRefreshToken != null && !this.isRefreshTokenExpiring(userLightDto.getRefreshToken())) {
             uuid = this.getClaimFromRefreshToken(oldRefreshToken, Claims.ID, String.class );
             return new String[]{
                     generateAccessToken(uuid, userLightDto.getUserId().toString(), userLightDto.getUsername(), userLightDto.getRole().name()),

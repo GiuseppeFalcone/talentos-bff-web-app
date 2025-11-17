@@ -18,7 +18,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.Set;
 
-@Order(1)
+@Order(2)
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationMiddleware extends OncePerRequestFilter {
@@ -34,7 +34,7 @@ public class JwtAuthenticationMiddleware extends OncePerRequestFilter {
 
             if (jwtService.isAccessTokenExpired(accessToken))
                 throw new FailureException(ResponseEnum.JWT_EXPIRED);
-            Long userId = jwtService.getClaimFromAccessToken(accessToken, Claims.SUBJECT, Long.class);
+            Long userId = Long.decode(jwtService.getClaimFromAccessToken(accessToken, Claims.SUBJECT, String.class));
             String role = jwtService.getClaimFromAccessToken(accessToken, "role", String.class);
 
             requestContext.setUserId(userId);
@@ -49,6 +49,10 @@ public class JwtAuthenticationMiddleware extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+            return true;
+        }
+
         String path = request.getRequestURI();
         return excludedPaths.stream().anyMatch(path::startsWith);
     }

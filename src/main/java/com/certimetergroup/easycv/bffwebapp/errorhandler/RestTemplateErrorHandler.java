@@ -2,6 +2,8 @@ package com.certimetergroup.easycv.bffwebapp.errorhandler;
 
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.exception.FailureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpResponse;
@@ -13,6 +15,8 @@ import java.net.URI;
 
 @Component
 public class RestTemplateErrorHandler implements ResponseErrorHandler {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     public boolean hasError(ClientHttpResponse response) throws IOException {
         return response.getStatusCode().is5xxServerError() || response.getStatusCode().is4xxClientError();
@@ -20,6 +24,7 @@ public class RestTemplateErrorHandler implements ResponseErrorHandler {
 
     @Override
     public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
+        logger.error("Error in External Server Endpoint, Status Code: ".concat(response.getStatusText().toString()));
         if (response.getStatusCode().is5xxServerError()) {
             throw new FailureException(ResponseEnum.EXTERNAL_SERVER_ERROR);
         }

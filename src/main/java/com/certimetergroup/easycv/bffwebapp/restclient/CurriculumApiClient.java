@@ -1,0 +1,109 @@
+package com.certimetergroup.easycv.bffwebapp.restclient;
+
+import com.certimetergroup.easycv.bffwebapp.context.RequestContext;
+import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
+import com.certimetergroup.easycv.commons.response.Response;
+import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumDto;
+import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLightDto;
+import com.certimetergroup.easycv.commons.response.dto.curriculum.create.CreateCurriculumDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+@Service
+@RequiredArgsConstructor
+public class CurriculumApiClient {
+
+    @Value("${curriculum-api.endpoint.get-all}")
+    String getCurriculumsUrl;
+    @Value("${curriculum-api.endpoint.get-by-id}")
+    String getCurriculumByIdUrl;
+    @Value("${curriculum-api.endpoint.post}")
+    String postCurriculumUrl;
+    @Value("${curriculum-api.endpoint.put}")
+    String putCurriculumUrl;
+    @Value("${curriculum-api.endpoint.delete}")
+    String deleteCurriculumUrl;
+
+    private final RequestContext requestContext;
+    private final RestTemplate restTemplateCurriculumApi;
+
+    private HttpHeaders createAuthHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(requestContext.getAccessToken());
+        return headers;
+    }
+
+    public PagedResponseDto<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds, Long domainId, Long domainOptionId) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(getCurriculumsUrl)
+                .queryParam("page", page)
+                .queryParam("pageSize", pageSize);
+        if (userIds != null && !userIds.isEmpty()) {
+            builder.queryParam("userIds", userIds);
+        }
+        if (domainId != null) {
+            builder.queryParam("domainId", domainId);
+        }
+        if (domainOptionId != null) {
+            builder.queryParam("domainOptionId", domainOptionId);
+        }
+
+        ParameterizedTypeReference<Response<PagedResponseDto<CurriculumLightDto>>> responseType = new ParameterizedTypeReference<>() {};
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+
+        ResponseEntity<Response<PagedResponseDto<CurriculumLightDto>>> response = restTemplateCurriculumApi.exchange(
+                builder.toUriString(), HttpMethod.GET, entity, responseType
+        );
+        return response.getBody().getData();
+    }
+
+    public Optional<CurriculumDto> getCurriculum(Long curriculumId) {
+        ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+
+        ResponseEntity<Response<CurriculumDto>> response = restTemplateCurriculumApi.exchange(
+                getCurriculumByIdUrl, HttpMethod.GET, entity, responseType, Map.of("curriculumId", curriculumId)
+        );
+        return Optional.ofNullable(response.getBody().getData());
+    }
+
+    public CurriculumDto addNewCurriculum(CreateCurriculumDto createCurriculumDto) {
+        ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
+        HttpEntity<CreateCurriculumDto> entity = new HttpEntity<>(createCurriculumDto, createAuthHeaders());
+
+        ResponseEntity<Response<CurriculumDto>> response = restTemplateCurriculumApi.exchange(
+                postCurriculumUrl, HttpMethod.POST, entity, responseType
+        );
+        return response.getBody().getData();
+    }
+
+    public Optional<CurriculumDto> replaceCurriculumData(Long curriculumId, CurriculumDto curriculumDto) {
+        ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
+        HttpEntity<CurriculumDto> entity = new HttpEntity<>(curriculumDto, createAuthHeaders());
+
+        ResponseEntity<Response<CurriculumDto>> response = restTemplateCurriculumApi.exchange(
+                putCurriculumUrl, HttpMethod.PUT, entity, responseType, Map.of("curriculumId", curriculumId)
+        );
+        return Optional.ofNullable(response.getBody().getData());
+    }
+
+    public void deleteCurriculum(Long curriculumId) {
+        ParameterizedTypeReference<Response<Void>> responseType = new ParameterizedTypeReference<>() {};
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+
+        restTemplateCurriculumApi.exchange(
+                deleteCurriculumUrl, HttpMethod.DELETE, entity, responseType, Map.of("curriculumId", curriculumId)
+        );
+    }
+}
