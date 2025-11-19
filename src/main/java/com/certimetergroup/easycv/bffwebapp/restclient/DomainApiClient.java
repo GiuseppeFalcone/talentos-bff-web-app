@@ -5,6 +5,7 @@ import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.dto.domain.CreateDomainDto;
 import com.certimetergroup.easycv.commons.response.dto.domain.DomainDto;
+import com.certimetergroup.easycv.commons.response.dto.domain.DomainOptionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -34,6 +35,8 @@ public class DomainApiClient {
     String putDomainUrl;
     @Value("${domain-api.endpoint.delete}")
     String deleteDomainUrl;
+    @Value("${domain-api.endpoint.option-by-id}")
+    String getDomainOptionByIdUrl;
 
     private final RequestContext requestContext;
     private final RestTemplate restTemplateDomainApi;
@@ -101,5 +104,14 @@ public class DomainApiClient {
         restTemplateDomainApi.exchange(
                 deleteDomainUrl, HttpMethod.DELETE, entity, responseType, Map.of("domainId", domainId)
         );
+    }
+
+    public Optional<DomainOptionDto> getDomainOption(Long domainOptionId) {
+        ParameterizedTypeReference<Response<DomainOptionDto>> responseType = new ParameterizedTypeReference<>() {};
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+        ResponseEntity<Response<DomainOptionDto>> response = restTemplateDomainApi.exchange(
+                getDomainOptionByIdUrl, HttpMethod.GET, entity, responseType, Map.of("domainOptionId", domainOptionId)
+        );
+        return Optional.ofNullable(response.getBody().getData());
     }
 }

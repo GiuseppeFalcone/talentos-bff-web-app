@@ -4,11 +4,14 @@ import com.certimetergroup.easycv.bffwebapp.dto.CurriculumDetailDto;
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.restclient.CurriculumApiClient;
 import com.certimetergroup.easycv.bffwebapp.restclient.DomainApiClient;
+import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
+import com.certimetergroup.easycv.commons.exception.FailureException;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumDto;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLightDto;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.ProjectDomainOptionDto;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.create.CreateCurriculumDto;
 import com.certimetergroup.easycv.commons.response.dto.domain.DomainDto;
+import com.certimetergroup.easycv.commons.response.dto.domain.DomainOptionDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -57,10 +60,27 @@ public class CurriculumApiService {
                 .map(Optional::get)
                 .collect(Collectors.toSet());
 
+        Set<DomainOptionDto> schools = new HashSet<>();
+        Set<DomainOptionDto> degrees = new HashSet<>();
+        curriculum.getEducationHistory().stream().forEach( entry -> {
+            Long schoolId = entry.getSchoolNameId();
+            Optional<DomainOptionDto> optionalSchool = domainApiService.getDomainOption(schoolId);
+            if (optionalSchool.isEmpty())
+                throw new FailureException(ResponseEnum.NOT_FOUND);
+            schools.add(optionalSchool.get());
+            Long degreeId = entry.getDegreeNameId();
+            Optional<DomainOptionDto> optionalDegree = domainApiService.getDomainOption(degreeId);
+            if (optionalDegree.isEmpty())
+                throw new FailureException(ResponseEnum.NOT_FOUND);
+            degrees.add(optionalDegree.get());
+        });
+
         CurriculumDetailDto detailDto = CurriculumDetailDto.builder()
                 .user(user)
                 .curriculum(curriculum)
                 .domains(domains)
+                .schools(schools)
+                .degrees(degrees)
                 .build();
 
         return Optional.of(detailDto);

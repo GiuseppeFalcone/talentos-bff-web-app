@@ -4,6 +4,7 @@ import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.restclient.DomainApiClient;
 import com.certimetergroup.easycv.commons.response.dto.domain.CreateDomainDto;
 import com.certimetergroup.easycv.commons.response.dto.domain.DomainDto;
+import com.certimetergroup.easycv.commons.response.dto.domain.DomainOptionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,4 +36,6 @@ public class DomainApiService {
     public void deleteDomain(Long domainId) {
         domainApiClient.deleteDomain(domainId);
     }
+
+    public Optional<DomainOptionDto> getDomainOption(Long domainOptionId){ return domainApiClient.getDomainOption(domainOptionId); }
 }
