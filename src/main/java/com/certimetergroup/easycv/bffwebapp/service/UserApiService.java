@@ -31,6 +31,10 @@ public class UserApiService {
         return userApiClient.patchUserData(userLightDto);
     }
 
+    public Optional<UserDto> replaceUserData(Long userId, UserDto userDto) {
+        return userApiClient.replaceUserData(userId, userDto);
+    }
+
     public UserLightDto getRefreshTokenByUserId(Long userId) {
         Optional<UserLightDto> optionalUserLightDto = userApiClient.getUserLightById(userId);
         if (optionalUserLightDto.isEmpty())
@@ -41,4 +45,5 @@ public class UserApiService {
     public void patchResetPassword(Credential credential) {
         userApiClient.patchResetPassword(credential);
     }
+
 }

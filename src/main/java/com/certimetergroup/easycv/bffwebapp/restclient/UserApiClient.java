@@ -33,6 +33,9 @@ public class UserApiClient {
     @Value("${user-api.endpoint.patch}")
     String patchUserUrl;
 
+    @Value("${user-api.endpoint.put}")
+    String putUserUrl;
+
     @Value("${user-api.endpoint.reset-password}")
     String resetPasswordUrl;
 
@@ -66,6 +69,18 @@ public class UserApiClient {
                 Map.of("userId", userLightDto.getUserId())
         );
 
+        return Optional.ofNullable(response.getBody().getData());
+    }
+
+    public Optional<UserDto> replaceUserData(Long userId, UserDto userDto) {
+        ParameterizedTypeReference<Response<UserDto>> responseType = new ParameterizedTypeReference<Response<UserDto>>() {};
+        ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
+                putUserUrl,
+                HttpMethod.PUT,
+                new HttpEntity<>(userDto, createAuthHeaders()),
+                responseType,
+                Map.of("userId", userId)
+        );
         return Optional.ofNullable(response.getBody().getData());
     }
 
