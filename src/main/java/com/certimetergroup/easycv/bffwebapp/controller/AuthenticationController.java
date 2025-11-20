@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @Validated
 @RestController
@@ -38,7 +37,7 @@ public class AuthenticationController {
         String[] tokens = jwtService.generateLoginTokens(userLightDto);
 
         requestContext.setAccessToken(tokens[0]);
-        if (!oldRefreshToken.equals(tokens[1]))
+        if (oldRefreshToken == null || !oldRefreshToken.equals(tokens[1]))
             userApiService.patchUserData(userLightDto);
 
         return ResponseEntity.ok().body(
@@ -51,11 +50,12 @@ public class AuthenticationController {
                 ));
     }
 
-    @PostMapping("/login/refresh")
+    @PostMapping("/refresh")
     public ResponseEntity<Response<AccAndRefresh>> handleLoginRefresh(
             @RequestBody RefreshToken refreshTokenReq,
             @RequestHeader(value = "Authorization") @NotBlank(message = "Access token in header required") String accessToken) {
-        Long userId = jwtService.getClaimFromAccessToken(HttpHeaderUtil.sanitizeAccessToken(accessToken), Claims.SUBJECT, Long.class);
+        Long userId = Long.decode(jwtService.getClaimFromAccessToken(HttpHeaderUtil.sanitizeAccessToken(accessToken), Claims.SUBJECT, String.class));
+        requestContext.setAccessToken(HttpHeaderUtil.sanitizeAccessToken(accessToken));
 
         UserLightDto userLightDto = userApiService.getRefreshTokenByUserId(userId);
         String refreshTokenDb = userLightDto.getRefreshToken();
