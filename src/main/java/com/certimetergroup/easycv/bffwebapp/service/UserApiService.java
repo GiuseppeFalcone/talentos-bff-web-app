@@ -1,7 +1,9 @@
 package com.certimetergroup.easycv.bffwebapp.service;
 
+import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.restclient.UserApiClient;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
+import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
 import com.certimetergroup.easycv.commons.exception.FailureException;
 import com.certimetergroup.easycv.commons.response.authentication.Credential;
 import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
@@ -15,6 +17,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserApiService {
     private final UserApiClient userApiClient;
+
+    public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String queryUsername, UserRoleEnum queryRole) {
+        return userApiClient.getUsers(page, pageSize, queryUsername, queryRole);
+    }
 
     public UserLightDto getUserLightByCredential(Credential credential) {
         Optional<UserLightDto> userLightDto = userApiClient.getUserLoginByCredential(credential);

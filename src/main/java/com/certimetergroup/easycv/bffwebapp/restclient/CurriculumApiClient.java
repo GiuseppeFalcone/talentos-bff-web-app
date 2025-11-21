@@ -2,6 +2,7 @@ package com.certimetergroup.easycv.bffwebapp.restclient;
 
 import com.certimetergroup.easycv.bffwebapp.context.RequestContext;
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
+import com.certimetergroup.easycv.bffwebapp.utility.RestHeaderHelper;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumDto;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLightDto;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,12 +39,6 @@ public class CurriculumApiClient {
     private final RequestContext requestContext;
     private final RestTemplate restTemplateCurriculumApi;
 
-    private HttpHeaders createAuthHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(requestContext.getAccessToken());
-        return headers;
-    }
-
     public PagedResponseDto<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds, Long domainId, Long domainOptionId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(getCurriculumsUrl)
                 .queryParam("page", page)
@@ -60,7 +54,7 @@ public class CurriculumApiClient {
         }
 
         ParameterizedTypeReference<Response<PagedResponseDto<CurriculumLightDto>>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+        HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<PagedResponseDto<CurriculumLightDto>>> response = restTemplateCurriculumApi.exchange(
                 builder.toUriString(), HttpMethod.GET, entity, responseType
@@ -70,7 +64,7 @@ public class CurriculumApiClient {
 
     public Optional<CurriculumDto> getCurriculum(Long curriculumId) {
         ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+        HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<CurriculumDto>> response = restTemplateCurriculumApi.exchange(
                 getCurriculumByIdUrl, HttpMethod.GET, entity, responseType, Map.of("curriculumId", curriculumId)
@@ -80,7 +74,7 @@ public class CurriculumApiClient {
 
     public CurriculumDto addNewCurriculum(CreateCurriculumDto createCurriculumDto) {
         ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<CreateCurriculumDto> entity = new HttpEntity<>(createCurriculumDto, createAuthHeaders());
+        HttpEntity<CreateCurriculumDto> entity = new HttpEntity<>(createCurriculumDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<CurriculumDto>> response = restTemplateCurriculumApi.exchange(
                 postCurriculumUrl, HttpMethod.POST, entity, responseType
@@ -90,7 +84,7 @@ public class CurriculumApiClient {
 
     public Optional<CurriculumDto> replaceCurriculumData(Long curriculumId, CurriculumDto curriculumDto) {
         ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<CurriculumDto> entity = new HttpEntity<>(curriculumDto, createAuthHeaders());
+        HttpEntity<CurriculumDto> entity = new HttpEntity<>(curriculumDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<CurriculumDto>> response = restTemplateCurriculumApi.exchange(
                 putCurriculumUrl, HttpMethod.PUT, entity, responseType, Map.of("curriculumId", curriculumId)
@@ -100,7 +94,7 @@ public class CurriculumApiClient {
 
     public void deleteCurriculum(Long curriculumId) {
         ParameterizedTypeReference<Response<Void>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+        HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         restTemplateCurriculumApi.exchange(
                 deleteCurriculumUrl, HttpMethod.DELETE, entity, responseType, Map.of("curriculumId", curriculumId)

@@ -1,6 +1,9 @@
 package com.certimetergroup.easycv.bffwebapp.restclient;
 
 import com.certimetergroup.easycv.bffwebapp.context.RequestContext;
+import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
+import com.certimetergroup.easycv.bffwebapp.utility.RestHeaderHelper;
+import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.authentication.Credential;
 import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
@@ -42,10 +45,16 @@ public class UserApiClient {
     private final RequestContext requestContext;
     private final RestTemplate restTemplateUserApi;
 
-    private HttpHeaders createAuthHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(requestContext.getAccessToken());
-        return headers;
+    public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String queryUsername, UserRoleEnum queryRole) {
+        ParameterizedTypeReference<Response<PagedResponseDto<UserLightDto>>> responseType = new ParameterizedTypeReference<>() {};
+        ResponseEntity<Response<PagedResponseDto<UserLightDto>>> response = restTemplateUserApi.exchange(
+                userApiBaseUrl,
+                HttpMethod.GET,
+                new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
+                responseType,
+                Map.of("page", page, "pageSize", pageSize, "queryUsername", queryUsername, "queryRole", queryRole)
+        );
+        return response.getBody().getData();
     }
 
     public Optional<UserLightDto> getUserLoginByCredential(Credential credential) {
@@ -53,7 +62,7 @@ public class UserApiClient {
         ResponseEntity<Response<UserLightDto>> response = restTemplateUserApi.exchange(
                 getUserLightByCredentialUrl,
                 HttpMethod.POST,
-                new HttpEntity<>(credential, createAuthHeaders()),
+                new HttpEntity<>(credential, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
                 responseType
         );
         return Optional.ofNullable(response.getBody().getData());
@@ -64,7 +73,7 @@ public class UserApiClient {
         ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
                 patchUserUrl,
                 HttpMethod.PATCH,
-                new HttpEntity<>(userLightDto, createAuthHeaders()),
+                new HttpEntity<>(userLightDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
                 responseType,
                 Map.of("userId", userLightDto.getUserId())
         );
@@ -77,7 +86,7 @@ public class UserApiClient {
         ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
                 putUserUrl,
                 HttpMethod.PUT,
-                new HttpEntity<>(userDto, createAuthHeaders()),
+                new HttpEntity<>(userDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
                 responseType,
                 Map.of("userId", userId)
         );
@@ -91,7 +100,7 @@ public class UserApiClient {
         ResponseEntity<Response<UserLightDto>> response = restTemplateUserApi.exchange(
                 getUserLightByIdUrl,
                 HttpMethod.GET,
-                new HttpEntity<>(null, createAuthHeaders()),
+                new HttpEntity<>(null, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
                 responseType,
                 Map.of("userId", userId)
         );
@@ -103,7 +112,7 @@ public class UserApiClient {
         restTemplateUserApi.exchange(
                 resetPasswordUrl,
                 HttpMethod.PATCH,
-                new HttpEntity<>(credential, createAuthHeaders()),
+                new HttpEntity<>(credential, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
                 responseType
         );
     }
@@ -113,7 +122,7 @@ public class UserApiClient {
         ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
                 getUserByIdUrl,
                 HttpMethod.GET,
-                new HttpEntity<>(null, createAuthHeaders()),
+                new HttpEntity<>(null, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
                 responseType,
                 Map.of("userId", userId)
         );
