@@ -1,11 +1,10 @@
 package com.certimetergroup.easycv.bffwebapp.controller;
 
-import com.certimetergroup.easycv.bffwebapp.context.RequestContext;
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.dto.curriculum.CurriculumAndUserLightDto;
 import com.certimetergroup.easycv.bffwebapp.service.CurriculumApiService;
 import com.certimetergroup.easycv.bffwebapp.service.UserApiService;
-import com.certimetergroup.easycv.bffwebapp.service.YourEmployeeService;
+import com.certimetergroup.easycv.bffwebapp.service.EmployeeService;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
 import com.certimetergroup.easycv.commons.response.Response;
@@ -14,6 +13,7 @@ import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,18 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Validated
 @RestController
 @RequestMapping("/api/bff-web-app/employees")
 @RequiredArgsConstructor
-public class YourEmployeeController {
+public class EmployeeController {
     private final UserApiService userApiService;
     private final CurriculumApiService curriculumApiService;
-    private final YourEmployeeService yourEmployeeService;
-    private final RequestContext requestContext;
+    private final EmployeeService employeeService;
 
     @GetMapping
     public ResponseEntity<Response<PagedResponseDto<CurriculumAndUserLightDto>>> getUsersAndCurriculums(
-            @RequestParam @NotNull(message = "List of users needed") Set<Long> employeeIds,
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer pageSize,
             @RequestParam(required = false) String queryUsername,
@@ -49,13 +48,13 @@ public class YourEmployeeController {
 
         PagedResponseDto<CurriculumLightDto> curriculumResponseDto = curriculumApiService.getCurriculums(
                 page,
-                userResponseDto.getSize(),
-                fetchedUserIds.isEmpty() ? employeeIds : fetchedUserIds,
+                fetchedUserIds.size(),
+                fetchedUserIds,
                 domainId,
                 domainOptionId
         );
 
-        PagedResponseDto<CurriculumAndUserLightDto> result = yourEmployeeService.curriculumAndUserLightDtoPagedResponseDto(
+        PagedResponseDto<CurriculumAndUserLightDto> result = employeeService.curriculumAndUserLightDtoPagedResponseDto(
                 userResponseDto,
                 curriculumResponseDto
         );

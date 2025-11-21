@@ -1,5 +1,6 @@
 package com.certimetergroup.easycv.bffwebapp.service;
 
+import com.certimetergroup.easycv.bffwebapp.dto.Page;
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.dto.curriculum.CurriculumAndUserLightDto;
 import com.certimetergroup.easycv.bffwebapp.mapper.CurriculumAndUserMapper;
@@ -8,6 +9,7 @@ import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -15,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class YourEmployeeService {
+public class EmployeeService {
     public final CurriculumAndUserMapper curriculumAndUserMapper;
 
     public PagedResponseDto<CurriculumAndUserLightDto> curriculumAndUserLightDtoPagedResponseDto(
@@ -33,13 +35,13 @@ public class YourEmployeeService {
             return curriculumAndUserMapper.toDto(user, curriculum);
         }).toList();
 
-        PagedResponseDto<CurriculumAndUserLightDto> response = new PagedResponseDto<>();
-        response.setContent(content);
-        response.setTotalElements(userLightDtoPagedResponseDto.getTotalElements());
-        response.setTotalPages(userLightDtoPagedResponseDto.getTotalPages());
-        response.setSize(userLightDtoPagedResponseDto.getSize());
-        response.setNumber(userLightDtoPagedResponseDto.getNumber());
-
-        return response;
+        Page page = Page.builder()
+                .totalPages(userLightDtoPagedResponseDto.getPage().getTotalPages())
+                .totalElements(userLightDtoPagedResponseDto.getPage().getTotalElements())
+                .size(userLightDtoPagedResponseDto.getPage().getSize())
+                .number(userLightDtoPagedResponseDto.getPage().getNumber())
+                .build();
+        
+        return new PagedResponseDto<>(content, page);
     }
 }

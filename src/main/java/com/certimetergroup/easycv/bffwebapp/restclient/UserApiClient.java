@@ -14,7 +14,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 
@@ -46,13 +48,26 @@ public class UserApiClient {
     private final RestTemplate restTemplateUserApi;
 
     public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String queryUsername, UserRoleEnum queryRole) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userApiBaseUrl)
+                .queryParam("page", page)
+                .queryParam("pageSize", pageSize);
+
+        if (queryUsername != null) {
+            builder.queryParam("queryUsername", queryUsername);
+        }
+
+        if (queryRole != null) {
+            builder.queryParam("queryRole", queryRole);
+        }
+
+        URI uri = builder.build().toUri();
+
         ParameterizedTypeReference<Response<PagedResponseDto<UserLightDto>>> responseType = new ParameterizedTypeReference<>() {};
         ResponseEntity<Response<PagedResponseDto<UserLightDto>>> response = restTemplateUserApi.exchange(
-                userApiBaseUrl,
+                uri,
                 HttpMethod.GET,
                 new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
-                responseType,
-                Map.of("page", page, "pageSize", pageSize, "queryUsername", queryUsername, "queryRole", queryRole)
+                responseType
         );
         return response.getBody().getData();
     }

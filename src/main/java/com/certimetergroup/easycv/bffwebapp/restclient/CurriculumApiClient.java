@@ -44,7 +44,7 @@ public class CurriculumApiClient {
                 .queryParam("page", page)
                 .queryParam("pageSize", pageSize);
         if (userIds != null && !userIds.isEmpty()) {
-            builder.queryParam("userIds", userIds);
+            builder.queryParam("userIds", userIds.toArray());
         }
         if (domainId != null) {
             builder.queryParam("domainId", domainId);
