@@ -1,7 +1,7 @@
-package com.certimetergroup.easycv.bffwebapp.controller;
+package com.certimetergroup.easycv.bffwebapp.controller.view;
 
 import com.certimetergroup.easycv.bffwebapp.context.RequestContext;
-import com.certimetergroup.easycv.bffwebapp.service.AuthenticationService;
+import com.certimetergroup.easycv.bffwebapp.service.views.AuthenticationService;
 import com.certimetergroup.easycv.bffwebapp.service.JwtService;
 import com.certimetergroup.easycv.bffwebapp.service.UserApiService;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
@@ -13,6 +13,7 @@ import com.certimetergroup.easycv.commons.response.authentication.RefreshToken;
 import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import com.certimetergroup.easycv.commons.utility.HttpHeaderUtil;
 import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/bff-web-app/auth")
 @RequiredArgsConstructor
+@Tag(name = "BFF Authentication", description = "Endpoints to serve auth related operations for frontend")
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final UserApiService userApiService;

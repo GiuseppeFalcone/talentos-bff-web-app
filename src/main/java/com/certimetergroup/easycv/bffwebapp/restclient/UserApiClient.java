@@ -18,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +71,7 @@ public class UserApiClient {
         return response.getBody().getData();
     }
 
-    public Optional<UserLightDto> getUserLoginByCredential(Credential credential) {
+    public UserLightDto getUserLoginByCredential(Credential credential) {
         ParameterizedTypeReference<Response<UserLightDto>> responseType = new ParameterizedTypeReference<>() {};
         ResponseEntity<Response<UserLightDto>> response = restTemplateUserApi.exchange(
                 getUserLightByCredentialUrl,
@@ -80,10 +79,10 @@ public class UserApiClient {
                 new HttpEntity<>(credential, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
                 responseType
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
-    public Optional<UserDto> patchUserData(UserLightDto userLightDto) {
+    public UserDto patchUserData(UserLightDto userLightDto) {
         ParameterizedTypeReference<Response<UserDto>> responseType = new ParameterizedTypeReference<>() {};
         ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
                 patchUserUrl,
@@ -93,10 +92,10 @@ public class UserApiClient {
                 Map.of("userId", userLightDto.getUserId())
         );
 
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
-    public Optional<UserDto> replaceUserData(Long userId, UserDto userDto) {
+    public UserDto replaceUserData(Long userId, UserDto userDto) {
         ParameterizedTypeReference<Response<UserDto>> responseType = new ParameterizedTypeReference<Response<UserDto>>() {};
         ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
                 putUserUrl,
@@ -105,12 +104,10 @@ public class UserApiClient {
                 responseType,
                 Map.of("userId", userId)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
-    public Optional<UserLightDto> getUserLightById(Long userId) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(requestContext.getAccessToken());
+    public UserLightDto getUserLightById(Long userId) {
         ParameterizedTypeReference<Response<UserLightDto>> responseType = new ParameterizedTypeReference<>() {};
         ResponseEntity<Response<UserLightDto>> response = restTemplateUserApi.exchange(
                 getUserLightByIdUrl,
@@ -119,7 +116,7 @@ public class UserApiClient {
                 responseType,
                 Map.of("userId", userId)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
     public void patchResetPassword(Credential credential) {
@@ -132,7 +129,7 @@ public class UserApiClient {
         );
     }
 
-    public Optional<UserDto> getUserById(Long userId) {
+    public UserDto getUserById(Long userId) {
         ParameterizedTypeReference<Response<UserDto>> responseType = new ParameterizedTypeReference<>() {};
         ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
                 getUserByIdUrl,
@@ -141,6 +138,6 @@ public class UserApiClient {
                 responseType,
                 Map.of("userId", userId)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 }

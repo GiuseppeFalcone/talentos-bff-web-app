@@ -1,4 +1,4 @@
-package com.certimetergroup.easycv.bffwebapp.dto.curriculum;
+package com.certimetergroup.easycv.bffwebapp.dto.view.youremployee;
 
 import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
 import lombok.AllArgsConstructor;

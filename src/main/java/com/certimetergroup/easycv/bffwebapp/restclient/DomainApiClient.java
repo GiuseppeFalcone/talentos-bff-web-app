@@ -61,14 +61,14 @@ public class DomainApiClient {
         return response.getBody().getData();
     }
 
-    public Optional<DomainDto> getDomain(Long domainId, Set<Long> domainOptionIds) {
+    public DomainDto getDomain(Long domainId, Set<Long> domainOptionIds) {
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<DomainDto>> response = restTemplateDomainApi.exchange(
                 getDomainByIdUrl, HttpMethod.GET, entity, responseType, Map.of("domainId", domainId, "domainOptionids", domainOptionIds)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
     public DomainDto addNewDomain(CreateDomainDto createDomainDto) {
@@ -81,14 +81,14 @@ public class DomainApiClient {
         return response.getBody().getData();
     }
 
-    public Optional<DomainDto> replaceDomainData(Long domainId, DomainDto domainDto) {
+    public DomainDto replaceDomainData(Long domainId, DomainDto domainDto) {
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<DomainDto> entity = new HttpEntity<>(domainDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<DomainDto>> response = restTemplateDomainApi.exchange(
                 putDomainUrl, HttpMethod.PUT, entity, responseType, Map.of("domainId", domainId)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
     public void deleteDomain(Long domainId) {
@@ -100,12 +100,12 @@ public class DomainApiClient {
         );
     }
 
-    public Optional<DomainOptionDto> getDomainOption(Long domainOptionId) {
+    public DomainOptionDto getDomainOption(Long domainOptionId) {
         ParameterizedTypeReference<Response<DomainOptionDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
         ResponseEntity<Response<DomainOptionDto>> response = restTemplateDomainApi.exchange(
                 getDomainOptionByIdUrl, HttpMethod.GET, entity, responseType, Map.of("domainOptionId", domainOptionId)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 }

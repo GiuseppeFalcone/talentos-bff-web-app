@@ -1,6 +1,6 @@
 package com.certimetergroup.easycv.bffwebapp.mapper;
 
-import com.certimetergroup.easycv.bffwebapp.dto.curriculum.CurriculumAndUserLightDto;
+import com.certimetergroup.easycv.bffwebapp.dto.view.youremployee.CurriculumAndUserLightDto;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLightDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import org.mapstruct.Mapper;

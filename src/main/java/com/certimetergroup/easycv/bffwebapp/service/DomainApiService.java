@@ -1,10 +1,8 @@
 package com.certimetergroup.easycv.bffwebapp.service;
 
-import com.certimetergroup.easycv.bffwebapp.dto.curriculum.CurriculumDetailDto;
+import com.certimetergroup.easycv.bffwebapp.dto.view.yourcv.CurriculumDetailDto;
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.restclient.DomainApiClient;
-import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
-import com.certimetergroup.easycv.commons.exception.FailureException;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumDto;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.ProjectDomainOptionDto;
 import com.certimetergroup.easycv.commons.response.dto.domain.CreateDomainDto;
@@ -27,7 +25,7 @@ public class DomainApiService {
         return domainApiClient.getDomains(page, pageSize, domainName, domainOptionValue);
     }
 
-    public Optional<DomainDto> getDomain(Long domainId, Set<Long> domainOptionIds) {
+    public DomainDto getDomain(Long domainId, Set<Long> domainOptionIds) {
         return domainApiClient.getDomain(domainId, domainOptionIds);
     }
 
@@ -35,7 +33,7 @@ public class DomainApiService {
         return domainApiClient.addNewDomain(createDomainDto);
     }
 
-    public Optional<DomainDto> replaceDomainData(Long domainId, DomainDto domainDto) {
+    public DomainDto replaceDomainData(Long domainId, DomainDto domainDto) {
         return domainApiClient.replaceDomainData(domainId, domainDto);
     }
 
@@ -43,7 +41,7 @@ public class DomainApiService {
         domainApiClient.deleteDomain(domainId);
     }
 
-    public Optional<DomainOptionDto> getDomainOption(Long domainOptionId){ return domainApiClient.getDomainOption(domainOptionId); }
+    public DomainOptionDto getDomainOption(Long domainOptionId){ return domainApiClient.getDomainOption(domainOptionId); }
 
     public void getAllCurriculumDomains(CurriculumDetailDto curriculumDetailDto) {
         Map<Long, Set<Long>> domainRequirements = collectDomainRequirements(curriculumDetailDto.getCurriculum());
@@ -54,23 +52,17 @@ public class DomainApiService {
                     Set<Long> optionIds = entry.getValue();
                     return domainApiClient.getDomain(domainId, optionIds);
                 })
-                .filter(Optional::isPresent)
-                .map(Optional::get)
                 .collect(Collectors.toSet());
 
         Set<DomainOptionDto> schools = new HashSet<>();
         Set<DomainOptionDto> degrees = new HashSet<>();
         curriculumDetailDto.getCurriculum().getEducationHistory().stream().forEach( entry -> {
             Long schoolId = entry.getSchoolNameId();
-            Optional<DomainOptionDto> optionalSchool = domainApiClient.getDomainOption(schoolId);
-            if (optionalSchool.isEmpty())
-                throw new FailureException(ResponseEnum.NOT_FOUND);
-            schools.add(optionalSchool.get());
+            DomainOptionDto school = domainApiClient.getDomainOption(schoolId);
+            schools.add(school);
             Long degreeId = entry.getDegreeNameId();
-            Optional<DomainOptionDto> optionalDegree = domainApiClient.getDomainOption(degreeId);
-            if (optionalDegree.isEmpty())
-                throw new FailureException(ResponseEnum.NOT_FOUND);
-            degrees.add(optionalDegree.get());
+            DomainOptionDto degree = domainApiClient.getDomainOption(degreeId);
+            degrees.add(degree);
         });
         curriculumDetailDto.setDomains(domains);
         curriculumDetailDto.setSchools(schools);

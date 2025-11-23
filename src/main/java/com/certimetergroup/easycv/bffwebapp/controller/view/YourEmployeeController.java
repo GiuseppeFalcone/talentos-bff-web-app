@@ -1,16 +1,16 @@
-package com.certimetergroup.easycv.bffwebapp.controller;
+package com.certimetergroup.easycv.bffwebapp.controller.view;
 
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
-import com.certimetergroup.easycv.bffwebapp.dto.curriculum.CurriculumAndUserLightDto;
+import com.certimetergroup.easycv.bffwebapp.dto.view.youremployee.CurriculumAndUserLightDto;
 import com.certimetergroup.easycv.bffwebapp.service.CurriculumApiService;
 import com.certimetergroup.easycv.bffwebapp.service.UserApiService;
-import com.certimetergroup.easycv.bffwebapp.service.EmployeeService;
+import com.certimetergroup.easycv.bffwebapp.service.views.YourEmployeeService;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLightDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,12 +24,13 @@ import java.util.stream.Collectors;
 
 @Validated
 @RestController
-@RequestMapping("/api/bff-web-app/employees")
+@RequestMapping("/api/bff-web-app/views/your-employees")
 @RequiredArgsConstructor
-public class EmployeeController {
+@Tag(name = "BFF Your Employees", description = "Endpoints to serve your-employees front-end component")
+public class YourEmployeeController {
     private final UserApiService userApiService;
     private final CurriculumApiService curriculumApiService;
-    private final EmployeeService employeeService;
+    private final YourEmployeeService yourEmployeeService;
 
     @GetMapping
     public ResponseEntity<Response<PagedResponseDto<CurriculumAndUserLightDto>>> getUsersAndCurriculums(
@@ -54,7 +55,7 @@ public class EmployeeController {
                 domainOptionId
         );
 
-        PagedResponseDto<CurriculumAndUserLightDto> result = employeeService.curriculumAndUserLightDtoPagedResponseDto(
+        PagedResponseDto<CurriculumAndUserLightDto> result = yourEmployeeService.curriculumAndUserLightDtoPagedResponseDto(
                 userResponseDto,
                 curriculumResponseDto
         );
