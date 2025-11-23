@@ -42,7 +42,6 @@ public class JwtService {
         accessToken = HttpHeaderUtil.sanitizeAccessToken(accessToken);
 
         if (!validateTokensClaims(accessToken, userLightDto.getRefreshToken())) {
-            System.out.println("refreshToken method ");
             throw new FailureException(ResponseEnum.JWT_INVALID);
         }
 

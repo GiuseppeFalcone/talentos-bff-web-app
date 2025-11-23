@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -42,30 +41,20 @@ public class DomainController {
     public ResponseEntity<Response<DomainDto>> getDomain(
             @PathVariable @NotNull(message = "Domain Id required") @Positive(message = "Domain Id must be > 0") Long domainId,
             @RequestParam(required = false)Set<Long> domainOptionIds) {
-
-        Optional<DomainDto> optionalDomainDto = domainService.getDomain(domainId, domainOptionIds);
-        return optionalDomainDto.map(
-                        domainDto -> ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, domainDto)))
-                .orElseGet(() -> ResponseEntity.status(ResponseEnum.NOT_FOUND.httpStatus).body(new Response<>(ResponseEnum.NOT_FOUND)));
+        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, domainService.getDomain(domainId, domainOptionIds)));
     }
 
     @PostMapping
     public ResponseEntity<Response<DomainDto>> addNewDomain(
             @RequestBody @Valid @NotNull(message = "CreateDomainDto required") CreateDomainDto createDomainDto) {
-
-        DomainDto newDomain = domainService.addNewDomain(createDomainDto);
-        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, newDomain));
+        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, domainService.addNewDomain(createDomainDto)));
     }
 
     @PutMapping("/{domainId}")
     public ResponseEntity<Response<DomainDto>> replaceDomainData(
             @PathVariable @NotNull(message = "Domain Id required") @Positive(message = "Wrong domain id provided") Long domainId,
             @RequestBody @Valid @NotNull(message = "DomainDto required") DomainDto domainDto) {
-
-        Optional<DomainDto> optionalDomainDto = domainService.replaceDomainData(domainId, domainDto);
-        return optionalDomainDto.map(
-                        dto -> ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, dto)))
-                .orElseGet(() -> ResponseEntity.status(ResponseEnum.NOT_FOUND.httpStatus).body(new Response<>(ResponseEnum.NOT_FOUND)));
+        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, domainService.replaceDomainData(domainId, domainDto)));
     }
 
     @DeleteMapping("/{domainId}")

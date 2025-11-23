@@ -1,7 +1,9 @@
 package com.certimetergroup.easycv.bffwebapp.service;
 
+import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.restclient.UserApiClient;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
+import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
 import com.certimetergroup.easycv.commons.exception.FailureException;
 import com.certimetergroup.easycv.commons.response.authentication.Credential;
 import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
@@ -16,34 +18,32 @@ import java.util.Optional;
 public class UserApiService {
     private final UserApiClient userApiClient;
 
-    public UserLightDto getUserLightByCredential(Credential credential) {
-        Optional<UserLightDto> userLightDto = userApiClient.getUserLoginByCredential(credential);
-        if (userLightDto.isEmpty())
-            throw new FailureException(ResponseEnum.UNAUTHORIZED);
-        return userLightDto.get();
+    public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String queryUsername, UserRoleEnum queryRole) {
+        return userApiClient.getUsers(page, pageSize, queryUsername, queryRole);
     }
 
-    public Optional<UserDto> getUserById(Long userId) {
+    public UserLightDto getUserLightByCredential(Credential credential) {
+        return userApiClient.getUserLoginByCredential(credential);
+    }
+
+    public UserDto getUserById(Long userId) {
         return userApiClient.getUserById(userId);
     }
 
-    public Optional<UserDto> patchUserData(UserLightDto userLightDto) {
+    public UserDto patchUserData(UserLightDto userLightDto) {
         return userApiClient.patchUserData(userLightDto);
     }
 
-    public Optional<UserDto> replaceUserData(Long userId, UserDto userDto) {
+    public UserDto replaceUserData(Long userId, UserDto userDto) {
         return userApiClient.replaceUserData(userId, userDto);
     }
 
     public UserLightDto getRefreshTokenByUserId(Long userId) {
-        Optional<UserLightDto> optionalUserLightDto = userApiClient.getUserLightById(userId);
-        if (optionalUserLightDto.isEmpty())
-            throw new FailureException(ResponseEnum.UNAUTHORIZED);
-        return optionalUserLightDto.get();
+        UserLightDto optionalUserLightDto = userApiClient.getUserLightById(userId);
+        return optionalUserLightDto;
     }
 
     public void patchResetPassword(Credential credential) {
         userApiClient.patchResetPassword(credential);
     }
-
 }

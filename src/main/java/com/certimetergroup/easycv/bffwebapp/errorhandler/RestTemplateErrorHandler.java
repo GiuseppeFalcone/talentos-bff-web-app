@@ -24,7 +24,8 @@ public class RestTemplateErrorHandler implements ResponseErrorHandler {
 
     @Override
     public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
-        logger.error("Error in External Server Endpoint, Status Code: ".concat(response.getStatusText().toString()));
+        String error = "Error in External Server Endpoint, Status Code: ".concat(response.getStatusText().toString());
+        logger.error(error);
         if (response.getStatusCode().is5xxServerError()) {
             throw new FailureException(ResponseEnum.EXTERNAL_SERVER_ERROR);
         }

@@ -2,6 +2,7 @@ package com.certimetergroup.easycv.bffwebapp.restclient;
 
 import com.certimetergroup.easycv.bffwebapp.context.RequestContext;
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
+import com.certimetergroup.easycv.bffwebapp.utility.RestHeaderHelper;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.dto.domain.CreateDomainDto;
 import com.certimetergroup.easycv.commons.response.dto.domain.DomainDto;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,12 +41,6 @@ public class DomainApiClient {
     private final RequestContext requestContext;
     private final RestTemplate restTemplateDomainApi;
 
-    private HttpHeaders createAuthHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(requestContext.getAccessToken());
-        return headers;
-    }
-
     public PagedResponseDto<DomainDto> getDomains(Integer page, Integer pageSize, String domainName, String domainOptionValue) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(getDomainsUrl)
                 .queryParam("page", page)
@@ -59,7 +53,7 @@ public class DomainApiClient {
         }
 
         ParameterizedTypeReference<Response<PagedResponseDto<DomainDto>>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+        HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<PagedResponseDto<DomainDto>>> response = restTemplateDomainApi.exchange(
                 builder.toUriString(), HttpMethod.GET, entity, responseType
@@ -67,19 +61,19 @@ public class DomainApiClient {
         return response.getBody().getData();
     }
 
-    public Optional<DomainDto> getDomain(Long domainId, Set<Long> domainOptionIds) {
+    public DomainDto getDomain(Long domainId, Set<Long> domainOptionIds) {
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+        HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<DomainDto>> response = restTemplateDomainApi.exchange(
                 getDomainByIdUrl, HttpMethod.GET, entity, responseType, Map.of("domainId", domainId, "domainOptionids", domainOptionIds)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
     public DomainDto addNewDomain(CreateDomainDto createDomainDto) {
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<CreateDomainDto> entity = new HttpEntity<>(createDomainDto, createAuthHeaders());
+        HttpEntity<CreateDomainDto> entity = new HttpEntity<>(createDomainDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<DomainDto>> response = restTemplateDomainApi.exchange(
                 postDomainUrl, HttpMethod.POST, entity, responseType
@@ -87,31 +81,31 @@ public class DomainApiClient {
         return response.getBody().getData();
     }
 
-    public Optional<DomainDto> replaceDomainData(Long domainId, DomainDto domainDto) {
+    public DomainDto replaceDomainData(Long domainId, DomainDto domainDto) {
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<DomainDto> entity = new HttpEntity<>(domainDto, createAuthHeaders());
+        HttpEntity<DomainDto> entity = new HttpEntity<>(domainDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<DomainDto>> response = restTemplateDomainApi.exchange(
                 putDomainUrl, HttpMethod.PUT, entity, responseType, Map.of("domainId", domainId)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
     public void deleteDomain(Long domainId) {
         ParameterizedTypeReference<Response<Void>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+        HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         restTemplateDomainApi.exchange(
                 deleteDomainUrl, HttpMethod.DELETE, entity, responseType, Map.of("domainId", domainId)
         );
     }
 
-    public Optional<DomainOptionDto> getDomainOption(Long domainOptionId) {
+    public DomainOptionDto getDomainOption(Long domainOptionId) {
         ParameterizedTypeReference<Response<DomainOptionDto>> responseType = new ParameterizedTypeReference<>() {};
-        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders());
+        HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
         ResponseEntity<Response<DomainOptionDto>> response = restTemplateDomainApi.exchange(
                 getDomainOptionByIdUrl, HttpMethod.GET, entity, responseType, Map.of("domainOptionId", domainOptionId)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 }

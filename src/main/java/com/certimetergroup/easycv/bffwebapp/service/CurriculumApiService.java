@@ -15,13 +15,12 @@ import java.util.*;
 public class CurriculumApiService {
 
     private final CurriculumApiClient curriculumApiClient;
-    private final DomainApiService domainApiService;
 
     public PagedResponseDto<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds, Long domainId, Long domainOptionId) {
         return curriculumApiClient.getCurriculums(page, pageSize, userIds, domainId, domainOptionId);
     }
 
-    public Optional<CurriculumDto> getCurriculum(Long curriculumId) {
+    public CurriculumDto getCurriculum(Long curriculumId) {
         return curriculumApiClient.getCurriculum(curriculumId);
     }
 
@@ -29,7 +28,7 @@ public class CurriculumApiService {
         return curriculumApiClient.addNewCurriculum(createCurriculumDto);
     }
 
-    public Optional<CurriculumDto> replaceCurriculumData(Long curriculumId, CurriculumDto curriculumDto) {
+    public CurriculumDto replaceCurriculumData(Long curriculumId, CurriculumDto curriculumDto) {
         return curriculumApiClient.replaceCurriculumData(curriculumId, curriculumDto);
     }
 
