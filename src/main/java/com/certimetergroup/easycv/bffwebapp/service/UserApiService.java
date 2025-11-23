@@ -23,33 +23,27 @@ public class UserApiService {
     }
 
     public UserLightDto getUserLightByCredential(Credential credential) {
-        Optional<UserLightDto> userLightDto = userApiClient.getUserLoginByCredential(credential);
-        if (userLightDto.isEmpty())
-            throw new FailureException(ResponseEnum.UNAUTHORIZED);
-        return userLightDto.get();
+        return userApiClient.getUserLoginByCredential(credential);
     }
 
-    public Optional<UserDto> getUserById(Long userId) {
+    public UserDto getUserById(Long userId) {
         return userApiClient.getUserById(userId);
     }
 
-    public Optional<UserDto> patchUserData(UserLightDto userLightDto) {
+    public UserDto patchUserData(UserLightDto userLightDto) {
         return userApiClient.patchUserData(userLightDto);
     }
 
-    public Optional<UserDto> replaceUserData(Long userId, UserDto userDto) {
+    public UserDto replaceUserData(Long userId, UserDto userDto) {
         return userApiClient.replaceUserData(userId, userDto);
     }
 
     public UserLightDto getRefreshTokenByUserId(Long userId) {
-        Optional<UserLightDto> optionalUserLightDto = userApiClient.getUserLightById(userId);
-        if (optionalUserLightDto.isEmpty())
-            throw new FailureException(ResponseEnum.UNAUTHORIZED);
-        return optionalUserLightDto.get();
+        UserLightDto optionalUserLightDto = userApiClient.getUserLightById(userId);
+        return optionalUserLightDto;
     }
 
     public void patchResetPassword(Credential credential) {
         userApiClient.patchResetPassword(credential);
     }
-
 }

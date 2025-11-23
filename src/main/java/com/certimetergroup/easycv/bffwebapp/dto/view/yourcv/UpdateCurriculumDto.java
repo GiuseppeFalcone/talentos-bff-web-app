@@ -1,4 +1,4 @@
-package com.certimetergroup.easycv.bffwebapp.dto.curriculum;
+package com.certimetergroup.easycv.bffwebapp.dto.view.yourcv;
 
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserDto;

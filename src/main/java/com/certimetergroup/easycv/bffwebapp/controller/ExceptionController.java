@@ -6,8 +6,6 @@ import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -22,15 +20,11 @@ import java.util.Map;
 public class ExceptionController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Value("${allowed-cors-origin}")
-    private String allowedCorsOrigin;
 
     @ExceptionHandler(FailureException.class)
     public ResponseEntity<Response<Void>> handleFailureException(FailureException failureException) {
         logger.error(failureException.toString());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Access-Control-Allow-Origin", allowedCorsOrigin);
-        return ResponseEntity.status(failureException.getResponseEnum().httpStatus).headers(headers).body(new Response<>(failureException.getResponseEnum()));
+        return ResponseEntity.status(failureException.getResponseEnum().httpStatus).body(new Response<>(failureException.getResponseEnum()));
     }
 
     @ExceptionHandler(Exception.class)

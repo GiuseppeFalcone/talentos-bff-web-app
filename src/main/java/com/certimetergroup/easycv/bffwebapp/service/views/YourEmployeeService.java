@@ -1,15 +1,14 @@
-package com.certimetergroup.easycv.bffwebapp.service;
+package com.certimetergroup.easycv.bffwebapp.service.views;
 
 import com.certimetergroup.easycv.bffwebapp.dto.Page;
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
-import com.certimetergroup.easycv.bffwebapp.dto.curriculum.CurriculumAndUserLightDto;
+import com.certimetergroup.easycv.bffwebapp.dto.view.youremployee.CurriculumAndUserLightDto;
 import com.certimetergroup.easycv.bffwebapp.mapper.CurriculumAndUserMapper;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLightDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class EmployeeService {
+public class YourEmployeeService {
     public final CurriculumAndUserMapper curriculumAndUserMapper;
 
     public PagedResponseDto<CurriculumAndUserLightDto> curriculumAndUserLightDtoPagedResponseDto(
@@ -41,7 +40,7 @@ public class EmployeeService {
                 .size(userLightDtoPagedResponseDto.getPage().getSize())
                 .number(userLightDtoPagedResponseDto.getPage().getNumber())
                 .build();
-        
+
         return new PagedResponseDto<>(content, page);
     }
 }

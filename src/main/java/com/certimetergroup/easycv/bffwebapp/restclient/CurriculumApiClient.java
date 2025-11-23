@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -62,14 +61,14 @@ public class CurriculumApiClient {
         return response.getBody().getData();
     }
 
-    public Optional<CurriculumDto> getCurriculum(Long curriculumId) {
+    public CurriculumDto getCurriculum(Long curriculumId) {
         ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<CurriculumDto>> response = restTemplateCurriculumApi.exchange(
                 getCurriculumByIdUrl, HttpMethod.GET, entity, responseType, Map.of("curriculumId", curriculumId)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
     public CurriculumDto addNewCurriculum(CreateCurriculumDto createCurriculumDto) {
@@ -82,14 +81,14 @@ public class CurriculumApiClient {
         return response.getBody().getData();
     }
 
-    public Optional<CurriculumDto> replaceCurriculumData(Long curriculumId, CurriculumDto curriculumDto) {
+    public CurriculumDto replaceCurriculumData(Long curriculumId, CurriculumDto curriculumDto) {
         ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<CurriculumDto> entity = new HttpEntity<>(curriculumDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<CurriculumDto>> response = restTemplateCurriculumApi.exchange(
                 putCurriculumUrl, HttpMethod.PUT, entity, responseType, Map.of("curriculumId", curriculumId)
         );
-        return Optional.ofNullable(response.getBody().getData());
+        return response.getBody().getData();
     }
 
     public void deleteCurriculum(Long curriculumId) {
