@@ -9,6 +9,10 @@ import com.certimetergroup.easycv.commons.response.dto.domain.DomainDto;
 import com.certimetergroup.easycv.commons.response.dto.domain.DomainOptionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -41,6 +45,7 @@ public class DomainApiClient {
     private final RequestContext requestContext;
     private final RestTemplate restTemplateDomainApi;
 
+    @Cacheable(value = "domains")
     public PagedResponseDto<DomainDto> getDomains(Integer page, Integer pageSize, String domainName, String domainOptionValue) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(getDomainsUrl)
                 .queryParam("page", page)
@@ -61,6 +66,7 @@ public class DomainApiClient {
         return response.getBody().getData();
     }
 
+    @Cacheable(value = "domain")
     public DomainDto getDomain(Long domainId, Set<Long> domainOptionIds) {
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
@@ -71,6 +77,7 @@ public class DomainApiClient {
         return response.getBody().getData();
     }
 
+    @CachePut(value = "domain")
     public DomainDto addNewDomain(CreateDomainDto createDomainDto) {
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<CreateDomainDto> entity = new HttpEntity<>(createDomainDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
@@ -81,6 +88,11 @@ public class DomainApiClient {
         return response.getBody().getData();
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "domains", allEntries = true),
+            @CacheEvict(value = "domain", allEntries = true),
+            @CacheEvict(value = "domainOption", allEntries = true)
+    })
     public DomainDto replaceDomainData(Long domainId, DomainDto domainDto) {
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<DomainDto> entity = new HttpEntity<>(domainDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
@@ -91,6 +103,11 @@ public class DomainApiClient {
         return response.getBody().getData();
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "domains", allEntries = true),
+            @CacheEvict(value = "domain", allEntries = true),
+            @CacheEvict(value = "domainOption", allEntries = true)
+    })
     public void deleteDomain(Long domainId) {
         ParameterizedTypeReference<Response<Void>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
@@ -99,7 +116,7 @@ public class DomainApiClient {
                 deleteDomainUrl, HttpMethod.DELETE, entity, responseType, Map.of("domainId", domainId)
         );
     }
-
+    @Cacheable(value = "domainOption", key = "#domainOptionId")
     public DomainOptionDto getDomainOption(Long domainOptionId) {
         ParameterizedTypeReference<Response<DomainOptionDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));

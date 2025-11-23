@@ -9,6 +9,9 @@ import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLigh
 import com.certimetergroup.easycv.commons.response.dto.curriculum.create.CreateCurriculumDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -61,6 +64,7 @@ public class CurriculumApiClient {
         return response.getBody().getData();
     }
 
+    @Cacheable(value = "curriculum", key = "#curriculumId")
     public CurriculumDto getCurriculum(Long curriculumId) {
         ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
@@ -71,6 +75,7 @@ public class CurriculumApiClient {
         return response.getBody().getData();
     }
 
+    @CachePut(value = "curriculum", key = "#result.curriculumId")
     public CurriculumDto addNewCurriculum(CreateCurriculumDto createCurriculumDto) {
         ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<CreateCurriculumDto> entity = new HttpEntity<>(createCurriculumDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
@@ -81,6 +86,7 @@ public class CurriculumApiClient {
         return response.getBody().getData();
     }
 
+    @CacheEvict(value = "curriculum", key = "#curriculumId")
     public CurriculumDto replaceCurriculumData(Long curriculumId, CurriculumDto curriculumDto) {
         ParameterizedTypeReference<Response<CurriculumDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<CurriculumDto> entity = new HttpEntity<>(curriculumDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
@@ -91,6 +97,7 @@ public class CurriculumApiClient {
         return response.getBody().getData();
     }
 
+    @CacheEvict(value = "curriculum", key = "#curriculumId")
     public void deleteCurriculum(Long curriculumId) {
         ParameterizedTypeReference<Response<Void>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
