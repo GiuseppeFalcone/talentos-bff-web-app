@@ -1,7 +1,8 @@
 package com.certimetergroup.easycv.bffwebapp.controller;
 
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
-import com.certimetergroup.easycv.bffwebapp.service.DomainApiService;
+import com.certimetergroup.easycv.bffwebapp.service.AuthorizationService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.DomainApiService;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.dto.domain.CreateDomainDto;
@@ -25,6 +26,7 @@ import java.util.Set;
 public class DomainController {
 
     private final DomainApiService domainService;
+    private final AuthorizationService authorizationService;
 
     @GetMapping
     public ResponseEntity<Response<PagedResponseDto<DomainDto>>> getDomains(
@@ -41,12 +43,15 @@ public class DomainController {
     public ResponseEntity<Response<DomainDto>> getDomain(
             @PathVariable @NotNull(message = "Domain Id required") @Positive(message = "Domain Id must be > 0") Long domainId,
             @RequestParam(required = false)Set<Long> domainOptionIds) {
+
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, domainService.getDomain(domainId, domainOptionIds)));
     }
 
     @PostMapping
     public ResponseEntity<Response<DomainDto>> addNewDomain(
             @RequestBody @Valid @NotNull(message = "CreateDomainDto required") CreateDomainDto createDomainDto) {
+
+        authorizationService.checkWriteDomain();
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, domainService.addNewDomain(createDomainDto)));
     }
 
@@ -54,6 +59,8 @@ public class DomainController {
     public ResponseEntity<Response<DomainDto>> replaceDomainData(
             @PathVariable @NotNull(message = "Domain Id required") @Positive(message = "Wrong domain id provided") Long domainId,
             @RequestBody @Valid @NotNull(message = "DomainDto required") DomainDto domainDto) {
+
+        authorizationService.checkWriteDomain();
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, domainService.replaceDomainData(domainId, domainDto)));
     }
 
@@ -61,6 +68,7 @@ public class DomainController {
     public ResponseEntity<Response<Void>> deleteDomain(
             @PathVariable @NotNull(message = "Domain Id required") @Positive(message = "Wrong domain id provided") Long domainId) {
 
+        authorizationService.checkWriteDomain();
         domainService.deleteDomain(domainId);
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS));
     }

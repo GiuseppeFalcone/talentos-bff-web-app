@@ -1,4 +1,4 @@
-package com.certimetergroup.easycv.bffwebapp.config.filter;
+package com.certimetergroup.easycv.bffwebapp.config.cors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

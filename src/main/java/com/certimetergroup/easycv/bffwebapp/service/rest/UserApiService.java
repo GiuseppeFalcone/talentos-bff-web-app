@@ -1,17 +1,13 @@
-package com.certimetergroup.easycv.bffwebapp.service;
+package com.certimetergroup.easycv.bffwebapp.service.rest;
 
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.restclient.UserApiClient;
-import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
-import com.certimetergroup.easycv.commons.exception.FailureException;
 import com.certimetergroup.easycv.commons.response.authentication.Credential;
 import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

@@ -2,8 +2,9 @@ package com.certimetergroup.easycv.bffwebapp.controller.view;
 
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.dto.view.youremployee.CurriculumAndUserLightDto;
-import com.certimetergroup.easycv.bffwebapp.service.CurriculumApiService;
-import com.certimetergroup.easycv.bffwebapp.service.UserApiService;
+import com.certimetergroup.easycv.bffwebapp.service.AuthorizationService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.CurriculumApiService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.UserApiService;
 import com.certimetergroup.easycv.bffwebapp.service.views.YourEmployeeService;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
@@ -31,6 +32,7 @@ public class YourEmployeeController {
     private final UserApiService userApiService;
     private final CurriculumApiService curriculumApiService;
     private final YourEmployeeService yourEmployeeService;
+    private final AuthorizationService authorizationService;
 
     @GetMapping
     public ResponseEntity<Response<PagedResponseDto<CurriculumAndUserLightDto>>> getUsersAndCurriculums(
@@ -41,11 +43,16 @@ public class YourEmployeeController {
             @RequestParam(required = false) Long domainId,
             @RequestParam(required = false) Long domainOptionId
             ) {
+
+        authorizationService.checkGetUsers();
+
         PagedResponseDto<UserLightDto> userResponseDto = userApiService.getUsers(page, pageSize, queryUsername, queryRole);
 
         Set<Long> fetchedUserIds = userResponseDto.getContent().stream()
                 .map(UserLightDto::getUserId)
                 .collect(Collectors.toSet());
+
+        authorizationService.checkGetCurriculums(fetchedUserIds);
 
         PagedResponseDto<CurriculumLightDto> curriculumResponseDto = curriculumApiService.getCurriculums(
                 page,

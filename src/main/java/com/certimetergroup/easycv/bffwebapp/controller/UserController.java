@@ -1,6 +1,7 @@
 package com.certimetergroup.easycv.bffwebapp.controller;
 
-import com.certimetergroup.easycv.bffwebapp.service.UserApiService;
+import com.certimetergroup.easycv.bffwebapp.service.AuthorizationService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.UserApiService;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
@@ -22,9 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserApiService userApiService;
+    private final AuthorizationService authorizationService;
 
     @GetMapping("/{userId}")
     public ResponseEntity<Response<UserDto>> getUser(@PathVariable @NotNull(message = "userId as path variable required") Long userId) {
+        authorizationService.checkGetUser(userId);
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, userApiService.getUserById(userId)));
     }
 }
