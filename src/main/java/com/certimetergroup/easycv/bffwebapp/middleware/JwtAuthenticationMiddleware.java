@@ -12,8 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,6 +30,9 @@ public class JwtAuthenticationMiddleware extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final Set<String> excludedPaths = Set.of("/api/bff-web-app/auth", "/api/bff-web-app/docs");
 
+    @Value("${allowed-cors-origin}")
+    private String allowedCorsOrigin;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         try {
@@ -38,6 +40,7 @@ public class JwtAuthenticationMiddleware extends OncePerRequestFilter {
 
             if (jwtService.isAccessTokenExpired(accessToken))
                 throw new FailureException(ResponseEnum.JWT_EXPIRED);
+
             Long userId = Long.decode(jwtService.getClaimFromAccessToken(accessToken, Claims.SUBJECT, String.class));
             String role = jwtService.getClaimFromAccessToken(accessToken, "role", String.class);
 
@@ -47,6 +50,10 @@ public class JwtAuthenticationMiddleware extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (FailureException exception) {
+            response.setHeader("Access-Control-Allow-Origin", allowedCorsOrigin);
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, Access-Control-Allow-Origin");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }

@@ -1,6 +1,6 @@
 package com.certimetergroup.easycv.bffwebapp.service.views;
 
-import com.certimetergroup.easycv.bffwebapp.service.UserApiService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.UserApiService;
 import com.certimetergroup.easycv.commons.response.authentication.Credential;
 import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import lombok.RequiredArgsConstructor;

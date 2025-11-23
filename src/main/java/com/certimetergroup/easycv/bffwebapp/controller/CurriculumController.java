@@ -1,7 +1,8 @@
 package com.certimetergroup.easycv.bffwebapp.controller;
 
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
-import com.certimetergroup.easycv.bffwebapp.service.CurriculumApiService;
+import com.certimetergroup.easycv.bffwebapp.service.AuthorizationService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.CurriculumApiService;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumDto;
@@ -19,11 +20,13 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/bff-web-app/curriculums")
-@Tag(name = "BFF Curriculums", description = "BFF operations for curriculum data")
+@Tag(name = "BFF Curriculums", description = "BFF operations on curriculum data")
 @Validated
 @RequiredArgsConstructor
 public class CurriculumController {
+
     private final CurriculumApiService curriculumService;
+    private final AuthorizationService authorizationService;
 
     @GetMapping
     public ResponseEntity<Response<PagedResponseDto<CurriculumLightDto>>> getCurriculums(
@@ -33,6 +36,7 @@ public class CurriculumController {
             @RequestParam(required = false) Long domainId,
             @RequestParam(required = false) Long domainOptionId) {
 
+        authorizationService.checkGetCurriculums(userIds);
         PagedResponseDto<CurriculumLightDto> pagedResponseDto = curriculumService.getCurriculums(page, pageSize, userIds, domainId, domainOptionId);
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, pagedResponseDto));
     }
@@ -41,6 +45,7 @@ public class CurriculumController {
     public ResponseEntity<Response<CurriculumDto>> getCurriculum(
             @PathVariable @NotNull(message = "Curriculum Id required") @Positive(message = "Curriculum Id must be > 0") Long curriculumId) {
 
+        authorizationService.checkReadCurriculum(curriculumId);
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, curriculumService.getCurriculum(curriculumId)));
     }
 
@@ -55,6 +60,7 @@ public class CurriculumController {
     public ResponseEntity<Response<Void>> deleteCurriculum(
             @PathVariable @NotNull(message = "Curriculum Id required") @Positive(message = "Wrong curriculum id provided") Long curriculumId) {
 
+        authorizationService.checkWriteCurriculum(curriculumId);
         curriculumService.deleteCurriculum(curriculumId);
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS));
     }

@@ -1,4 +1,4 @@
-package com.certimetergroup.easycv.bffwebapp.service;
+package com.certimetergroup.easycv.bffwebapp.service.rest;
 
 import com.certimetergroup.easycv.bffwebapp.dto.view.yourcv.CurriculumDetailDto;
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;

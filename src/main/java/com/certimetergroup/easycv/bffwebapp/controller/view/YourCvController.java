@@ -2,9 +2,10 @@ package com.certimetergroup.easycv.bffwebapp.controller.view;
 
 import com.certimetergroup.easycv.bffwebapp.dto.view.yourcv.CurriculumDetailDto;
 import com.certimetergroup.easycv.bffwebapp.dto.view.yourcv.UpdateCurriculumDto;
-import com.certimetergroup.easycv.bffwebapp.service.CurriculumApiService;
-import com.certimetergroup.easycv.bffwebapp.service.DomainApiService;
-import com.certimetergroup.easycv.bffwebapp.service.UserApiService;
+import com.certimetergroup.easycv.bffwebapp.service.AuthorizationService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.CurriculumApiService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.DomainApiService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.UserApiService;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.exception.FailureException;
 import com.certimetergroup.easycv.commons.response.Response;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "BFF Your Cv", description = "Endpoints to serve your-cv front-end component")
 public class YourCvController {
+    private final AuthorizationService authorizationService;
     private final CurriculumApiService curriculumApiService;
     private final UserApiService userApiService;
     private final DomainApiService domainApiService;
@@ -31,6 +33,9 @@ public class YourCvController {
     @GetMapping("/{curriculumId}")
     public ResponseEntity<Response<CurriculumDetailDto>> getCurriculumDetails(
             @PathVariable @NotNull(message = "Curriculum Id required") @Positive(message = "Curriculum Id must be > 0") Long curriculumId) {
+
+        authorizationService.checkReadCurriculum(curriculumId);
+
         CurriculumDto curriculumDto = curriculumApiService.getCurriculum(curriculumId);
         UserDto userDto = userApiService.getUserById(curriculumDto.getUserId());
 
@@ -46,6 +51,12 @@ public class YourCvController {
     public ResponseEntity<Response<CurriculumDetailDto>> replaceCurriculumData(
             @PathVariable @NotNull(message = "Curriculum Id required") @Positive(message = "Wrong curriculum id provided") Long curriculumId,
             @RequestBody @NotNull(message = "UserDto required") UpdateCurriculumDto updateCurriculumDto) {
+
+        authorizationService.checkWriteCurriculum(curriculumId);
+
+        if (updateCurriculumDto.getUser() != null) {
+            authorizationService.checkWriteUser(updateCurriculumDto.getUser().getUserId());
+        }
 
         UserDto oldUserDto = userApiService.getUserById(updateCurriculumDto.getUser().getUserId());
         UserDto updatedUserDto = userApiService.replaceUserData(updateCurriculumDto.getUser().getUserId(), updateCurriculumDto.getUser());
