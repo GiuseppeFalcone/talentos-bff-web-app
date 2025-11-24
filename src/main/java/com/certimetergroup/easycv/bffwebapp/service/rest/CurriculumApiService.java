@@ -16,8 +16,8 @@ public class CurriculumApiService {
 
     private final CurriculumApiClient curriculumApiClient;
 
-    public PagedResponseDto<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds, Long domainId, Long domainOptionId) {
-        return curriculumApiClient.getCurriculums(page, pageSize, userIds, domainId, domainOptionId);
+    public PagedResponseDto<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds, Set<Long> domainOptionId) {
+        return curriculumApiClient.getCurriculums(page, pageSize, userIds, domainOptionId);
     }
 
     public CurriculumDto getCurriculum(Long curriculumId) {
