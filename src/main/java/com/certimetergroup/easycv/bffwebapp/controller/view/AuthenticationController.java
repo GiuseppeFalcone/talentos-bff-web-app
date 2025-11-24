@@ -3,7 +3,7 @@ package com.certimetergroup.easycv.bffwebapp.controller.view;
 import com.certimetergroup.easycv.bffwebapp.context.RequestContext;
 import com.certimetergroup.easycv.bffwebapp.service.views.AuthenticationService;
 import com.certimetergroup.easycv.bffwebapp.service.JwtService;
-import com.certimetergroup.easycv.bffwebapp.service.UserApiService;
+import com.certimetergroup.easycv.bffwebapp.service.rest.UserApiService;
 import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.authentication.AccAndRefresh;

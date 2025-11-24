@@ -10,6 +10,9 @@ import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -46,17 +50,22 @@ public class UserApiClient {
     private final RequestContext requestContext;
     private final RestTemplate restTemplateUserApi;
 
-    public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String queryUsername, UserRoleEnum queryRole) {
+    public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String searchString,
+                                                   UserRoleEnum queryRole, Set<Long> domainOptionIds) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userApiBaseUrl)
                 .queryParam("page", page)
                 .queryParam("pageSize", pageSize);
 
-        if (queryUsername != null) {
-            builder.queryParam("queryUsername", queryUsername);
+        if (searchString != null) {
+            builder.queryParam("searchString", searchString);
         }
 
         if (queryRole != null) {
             builder.queryParam("queryRole", queryRole);
+        }
+
+        if (domainOptionIds != null && !domainOptionIds.isEmpty()) {
+            builder.queryParam("domainOptionIds", domainOptionIds);
         }
 
         URI uri = builder.build().toUri();
@@ -82,6 +91,10 @@ public class UserApiClient {
         return response.getBody().getData();
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "user", key = "#userLightDto.userId"),
+            @CacheEvict(value = "userLight", key = "#userLightDto.userId")
+    })
     public UserDto patchUserData(UserLightDto userLightDto) {
         ParameterizedTypeReference<Response<UserDto>> responseType = new ParameterizedTypeReference<>() {};
         ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
@@ -95,6 +108,10 @@ public class UserApiClient {
         return response.getBody().getData();
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "user", key = "#userLightDto.userId"),
+            @CacheEvict(value = "userLight", key = "#userLightDto.userId")
+    })
     public UserDto replaceUserData(Long userId, UserDto userDto) {
         ParameterizedTypeReference<Response<UserDto>> responseType = new ParameterizedTypeReference<Response<UserDto>>() {};
         ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
@@ -107,6 +124,7 @@ public class UserApiClient {
         return response.getBody().getData();
     }
 
+    @Cacheable(value = "userLight", key = "#userId")
     public UserLightDto getUserLightById(Long userId) {
         ParameterizedTypeReference<Response<UserLightDto>> responseType = new ParameterizedTypeReference<>() {};
         ResponseEntity<Response<UserLightDto>> response = restTemplateUserApi.exchange(
@@ -129,6 +147,7 @@ public class UserApiClient {
         );
     }
 
+    @Cacheable(value = "user", key = "#userId")
     public UserDto getUserById(Long userId) {
         ParameterizedTypeReference<Response<UserDto>> responseType = new ParameterizedTypeReference<>() {};
         ResponseEntity<Response<UserDto>> response = restTemplateUserApi.exchange(
