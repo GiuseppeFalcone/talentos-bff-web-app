@@ -41,18 +41,17 @@ public class CurriculumApiClient {
     private final RequestContext requestContext;
     private final RestTemplate restTemplateCurriculumApi;
 
-    public PagedResponseDto<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds, Long domainId, Long domainOptionId) {
+    public PagedResponseDto<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds, Set<Long> domainOptionIds) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(getCurriculumsUrl)
                 .queryParam("page", page)
                 .queryParam("pageSize", pageSize);
+
         if (userIds != null && !userIds.isEmpty()) {
             builder.queryParam("userIds", userIds.toArray());
         }
-        if (domainId != null) {
-            builder.queryParam("domainId", domainId);
-        }
-        if (domainOptionId != null) {
-            builder.queryParam("domainOptionId", domainOptionId);
+
+        if (domainOptionIds != null && !domainOptionIds.isEmpty()) {
+            builder.queryParam("domainOptionIds", domainOptionIds);
         }
 
         ParameterizedTypeReference<Response<PagedResponseDto<CurriculumLightDto>>> responseType = new ParameterizedTypeReference<>() {};

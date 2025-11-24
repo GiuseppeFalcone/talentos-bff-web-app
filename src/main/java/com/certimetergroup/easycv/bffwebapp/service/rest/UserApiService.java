@@ -9,13 +9,16 @@ import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class UserApiService {
     private final UserApiClient userApiClient;
 
-    public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String queryUsername, UserRoleEnum queryRole) {
-        return userApiClient.getUsers(page, pageSize, queryUsername, queryRole);
+    public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String query,
+                                                   UserRoleEnum queryRole, Set<Long> domainOptionIds) {
+        return userApiClient.getUsers(page, pageSize, query, queryRole, domainOptionIds);
     }
 
     public UserLightDto getUserLightByCredential(Credential credential) {

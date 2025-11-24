@@ -38,19 +38,21 @@ public class YourEmployeeController {
     public ResponseEntity<Response<PagedResponseDto<CurriculumAndUserLightDto>>> getUsersAndCurriculums(
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer pageSize,
-            @RequestParam(required = false) String queryUsername,
+            @RequestParam(required = false) String searchString,
             @RequestParam(required = false) UserRoleEnum queryRole,
-            @RequestParam(required = false) Long domainId,
-            @RequestParam(required = false) Long domainOptionId
-            ) {
+            @RequestParam(required = false) Set<Long> domainOptionIds
+    ) {
 
         authorizationService.checkGetUsers();
 
-        PagedResponseDto<UserLightDto> userResponseDto = userApiService.getUsers(page, pageSize, queryUsername, queryRole);
+        PagedResponseDto<UserLightDto> userResponseDto = userApiService.getUsers(page, pageSize, searchString, queryRole, domainOptionIds);
 
         Set<Long> fetchedUserIds = userResponseDto.getContent().stream()
                 .map(UserLightDto::getUserId)
                 .collect(Collectors.toSet());
+
+        if (fetchedUserIds.isEmpty())
+            return ResponseEntity.status(ResponseEnum.NOT_FOUND.httpStatus).body(new Response<>(ResponseEnum.NOT_FOUND));
 
         authorizationService.checkGetCurriculums(fetchedUserIds);
 
@@ -58,8 +60,7 @@ public class YourEmployeeController {
                 page,
                 fetchedUserIds.size(),
                 fetchedUserIds,
-                domainId,
-                domainOptionId
+                domainOptionIds
         );
 
         PagedResponseDto<CurriculumAndUserLightDto> result = yourEmployeeService.curriculumAndUserLightDtoPagedResponseDto(

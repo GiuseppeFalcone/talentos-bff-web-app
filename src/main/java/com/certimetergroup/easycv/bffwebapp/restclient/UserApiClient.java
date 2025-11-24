@@ -21,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -49,17 +50,22 @@ public class UserApiClient {
     private final RequestContext requestContext;
     private final RestTemplate restTemplateUserApi;
 
-    public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String queryUsername, UserRoleEnum queryRole) {
+    public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String searchString,
+                                                   UserRoleEnum queryRole, Set<Long> domainOptionIds) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userApiBaseUrl)
                 .queryParam("page", page)
                 .queryParam("pageSize", pageSize);
 
-        if (queryUsername != null) {
-            builder.queryParam("queryUsername", queryUsername);
+        if (searchString != null) {
+            builder.queryParam("searchString", searchString);
         }
 
         if (queryRole != null) {
             builder.queryParam("queryRole", queryRole);
+        }
+
+        if (domainOptionIds != null && !domainOptionIds.isEmpty()) {
+            builder.queryParam("domainOptionIds", domainOptionIds);
         }
 
         URI uri = builder.build().toUri();
