@@ -110,8 +110,8 @@ public class UserApiClient {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "user", key = "#userLightDto.userId"),
-            @CacheEvict(value = "userLight", key = "#userLightDto.userId")
+            @CacheEvict(value = "user", key = "#userId"),
+            @CacheEvict(value = "userLight", key = "#userId")
     })
     public UserDto replaceUserData(Long userId, UserDto userDto) {
         ParameterizedTypeReference<Response<UserDto>> responseType = new ParameterizedTypeReference<Response<UserDto>>() {};
