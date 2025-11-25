@@ -6,6 +6,7 @@ import com.certimetergroup.easycv.bffwebapp.utility.RestHeaderHelper;
 import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.authentication.Credential;
+import com.certimetergroup.easycv.commons.response.dto.user.CreateUserDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import lombok.RequiredArgsConstructor;
@@ -51,22 +52,22 @@ public class UserApiClient {
     private final RestTemplate restTemplateUserApi;
 
     public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String searchString,
-                                                   UserRoleEnum queryRole, Set<Long> domainOptionIds) {
+                                                   UserRoleEnum queryRole, Set<Long> domainOptionIds, Set<Long> queryUserIds) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userApiBaseUrl)
                 .queryParam("page", page)
                 .queryParam("pageSize", pageSize);
 
-        if (searchString != null) {
+        if (searchString != null)
             builder.queryParam("searchString", searchString);
-        }
 
-        if (queryRole != null) {
+        if (queryRole != null)
             builder.queryParam("queryRole", queryRole);
-        }
 
-        if (domainOptionIds != null && !domainOptionIds.isEmpty()) {
+        if (domainOptionIds != null && !domainOptionIds.isEmpty())
             builder.queryParam("domainOptionIds", domainOptionIds);
-        }
+
+        if (queryUserIds != null && !queryUserIds.isEmpty())
+            builder.queryParam("queryUserIds", queryUserIds);
 
         URI uri = builder.build().toUri();
 
@@ -156,6 +157,32 @@ public class UserApiClient {
                 new HttpEntity<>(null, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
                 responseType,
                 Map.of("userId", userId)
+        );
+        return response.getBody().getData();
+    }
+
+    @Caching(evict = {
+            @CacheEvict(value = "user", key = "#userId"),
+            @CacheEvict(value = "userLight", key = "#userId")
+    })
+    public void deleteUser(Long userId) {
+        ParameterizedTypeReference<Response<Void>> responseType = new ParameterizedTypeReference<>() {};
+        restTemplateUserApi.exchange(
+                getUserByIdUrl,
+                HttpMethod.DELETE,
+                new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
+                responseType,
+                Map.of("userId", userId)
+        );
+    }
+
+    public Credential createUser(CreateUserDto createUserDto) {
+        ParameterizedTypeReference<Response<Credential>> responseType = new ParameterizedTypeReference<>() {};
+        ResponseEntity<Response<Credential>> response = restTemplateUserApi.exchange(
+                userApiBaseUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(createUserDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken())),
+                responseType
         );
         return response.getBody().getData();
     }

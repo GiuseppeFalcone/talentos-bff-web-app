@@ -1,5 +1,6 @@
 package com.certimetergroup.easycv.bffwebapp.controller.view;
 
+import com.certimetergroup.easycv.bffwebapp.context.RequestContext;
 import com.certimetergroup.easycv.bffwebapp.dto.PagedResponseDto;
 import com.certimetergroup.easycv.bffwebapp.dto.view.youremployee.CurriculumAndUserLightDto;
 import com.certimetergroup.easycv.bffwebapp.service.AuthorizationService;
@@ -10,6 +11,7 @@ import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
 import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
 import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLightDto;
+import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
 import com.certimetergroup.easycv.commons.response.dto.user.UserLightDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class YourEmployeeController {
     private final CurriculumApiService curriculumApiService;
     private final YourEmployeeService yourEmployeeService;
     private final AuthorizationService authorizationService;
+    private final RequestContext requestContext;
 
     @GetMapping
     public ResponseEntity<Response<PagedResponseDto<CurriculumAndUserLightDto>>> getUsersAndCurriculums(
@@ -40,12 +43,15 @@ public class YourEmployeeController {
             @RequestParam(required = false, defaultValue = "20") Integer pageSize,
             @RequestParam(required = false) String searchString,
             @RequestParam(required = false) UserRoleEnum queryRole,
-            @RequestParam(required = false) Set<Long> domainOptionIds
+            @RequestParam(required = false) Set<Long> domainOptionIds,
+            @RequestParam(required = false) Set<Long> queryUserIds
     ) {
+        authorizationService.checkGetUsers(queryUserIds);
 
-        authorizationService.checkGetUsers();
+        if (queryUserIds == null || !queryUserIds.isEmpty())
+            queryUserIds = requestContext.getUser().getEmployeeIds();
 
-        PagedResponseDto<UserLightDto> userResponseDto = userApiService.getUsers(page, pageSize, searchString, queryRole, domainOptionIds);
+        PagedResponseDto<UserLightDto> userResponseDto = userApiService.getUsers(page, pageSize, searchString, queryRole, domainOptionIds, queryUserIds);
 
         Set<Long> fetchedUserIds = userResponseDto.getContent().stream()
                 .map(UserLightDto::getUserId)
