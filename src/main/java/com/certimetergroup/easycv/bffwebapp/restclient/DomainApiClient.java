@@ -77,7 +77,7 @@ public class DomainApiClient {
         return response.getBody().getData();
     }
 
-    @CachePut(value = "domain")
+    @CacheEvict(value = "domains", allEntries = true)
     public DomainDto addNewDomain(CreateDomainDto createDomainDto) {
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<CreateDomainDto> entity = new HttpEntity<>(createDomainDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
@@ -116,6 +116,7 @@ public class DomainApiClient {
                 deleteDomainUrl, HttpMethod.DELETE, entity, responseType, Map.of("domainId", domainId)
         );
     }
+
     @Cacheable(value = "domainOption", key = "#domainOptionId")
     public DomainOptionDto getDomainOption(Long domainOptionId) {
         ParameterizedTypeReference<Response<DomainOptionDto>> responseType = new ParameterizedTypeReference<>() {};
