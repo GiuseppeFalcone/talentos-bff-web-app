@@ -21,10 +21,15 @@ public class AuthorizationService {
     private final UserApiService userApiService;
     private final CurriculumApiService curriculumApiService;
 
-    public void checkGetUsers() {
+    public void checkGetUsers(Set<Long> requestedUserIds) {
         UserRoleEnum role = requestContext.getUserRole();
-        if (UserRoleEnum.EMPLOYEE.equals(role)) {
+        if (UserRoleEnum.EMPLOYEE.equals(role))
             throw new FailureException(ResponseEnum.UNAUTHORIZED);
+        if (UserRoleEnum.MANAGER.equals(role)) {
+            UserDto user = fetchAndCacheUser(requestContext.getUserId());
+            if (requestedUserIds != null && !requestedUserIds.isEmpty() &&
+                    !user.getEmployeeIds().containsAll(requestedUserIds))
+                throw new FailureException(ResponseEnum.UNAUTHORIZED);
         }
     }
 

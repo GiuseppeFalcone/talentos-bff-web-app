@@ -41,12 +41,12 @@ public class RedisCacheConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
         Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
-        configMap.put("domains", defaultConfig.entryTtl(Duration.ofHours(24)));
-        configMap.put("domain", defaultConfig.entryTtl(Duration.ofHours(24)));
-        configMap.put("domainOption", defaultConfig.entryTtl(Duration.ofHours(24)));
-        configMap.put("user", defaultConfig.entryTtl(Duration.ofMinutes(60)));
-        configMap.put("curriculum", defaultConfig.entryTtl(Duration.ofMinutes(30)));
-        configMap.put("userLightDto", defaultConfig.entryTtl(Duration.ofMinutes(15)));
+        configMap.put("domains", defaultConfig.entryTtl(Duration.ofDays(30)));
+        configMap.put("domain", defaultConfig.entryTtl(Duration.ofDays(30)));
+        configMap.put("domainOption", defaultConfig.entryTtl(Duration.ofDays(30)));
+        configMap.put("user", defaultConfig.entryTtl(Duration.ofHours(24)));
+        configMap.put("curriculum", defaultConfig.entryTtl(Duration.ofHours(24)));
+        configMap.put("userLightDto", defaultConfig.entryTtl(Duration.ofHours(24)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

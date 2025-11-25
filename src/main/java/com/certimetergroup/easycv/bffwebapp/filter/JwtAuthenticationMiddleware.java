@@ -1,4 +1,4 @@
-package com.certimetergroup.easycv.bffwebapp.middleware;
+package com.certimetergroup.easycv.bffwebapp.filter;
 
 import com.certimetergroup.easycv.bffwebapp.context.RequestContext;
 import com.certimetergroup.easycv.bffwebapp.service.JwtService;
