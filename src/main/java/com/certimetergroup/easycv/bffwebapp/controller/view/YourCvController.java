@@ -45,9 +45,9 @@ public class YourCvController {
     private final YourCvService yourCvService;
     private final RequestContext requestContext;
 
-    @GetMapping("/{curriculumId}")
+    @GetMapping
     public ResponseEntity<Response<CurriculumDetailDto>> getCurriculumDetails(
-            @PathVariable @NotNull(message = "Curriculum Id required") @Positive(message = "Curriculum Id must be > 0") Long curriculumId) {
+            @RequestParam @NotNull(message = "Curriculum Id required") @Positive(message = "Curriculum Id must be > 0") Long curriculumId) {
 
         authorizationService.checkReadCurriculum(curriculumId);
 
@@ -96,9 +96,9 @@ public class YourCvController {
         }
     }
 
-    @PutMapping("/{curriculumId}")
+    @PutMapping
     public ResponseEntity<Response<CurriculumDetailDto>> replaceCurriculumData(
-            @PathVariable @NotNull(message = "Curriculum Id required") @Positive(message = "Wrong curriculum id provided") Long curriculumId,
+            @RequestParam @NotNull(message = "Curriculum Id required") @Positive(message = "Wrong curriculum id provided") Long curriculumId,
             @RequestBody @NotNull(message = "UserDto required") UpdateCurriculumDto updateCurriculumDto) {
 
         authorizationService.checkWriteCurriculum(curriculumId);
