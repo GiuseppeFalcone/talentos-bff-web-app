@@ -37,10 +37,21 @@ public class UserController {
             @RequestParam(required = false) String searchString,
             @RequestParam(required = false) UserRoleEnum queryRole,
             @RequestParam(required = false) Set<Long> domainOptionIds,
-            @RequestParam(required = false) Set<Long> queryUserIds
+            @RequestParam(required = false) Set<Long> queryUserIds,
+            @RequestParam(required = false) String matchUsername
     ) {
-        authorizationService.checkGetUsers(queryUserIds);
-        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, userApiService.getUsers(page, pageSize, searchString, queryRole, domainOptionIds, queryUserIds)));
+
+        authorizationService.checkGetUsers(queryUserIds, matchUsername);
+
+        PagedResponseDto<UserLightDto> result = userApiService.getUsers(page, pageSize, searchString, queryRole, domainOptionIds, queryUserIds, matchUsername);
+
+        if (matchUsername != null && !result.getContent().isEmpty()) {
+            return ResponseEntity
+                    .status(ResponseEnum.ALREADY_EXISTS.httpStatus)
+                    .body(new Response<>(ResponseEnum.ALREADY_EXISTS));
+        }
+
+        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, result));
     }
 
     @GetMapping("/{userId}")
@@ -62,6 +73,16 @@ public class UserController {
 
         authorizationService.checkWriteUser(userId);
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, userApiService.replaceUserData(userId, userDto)));
+    }
+
+    @PatchMapping("/{userId}")
+    public ResponseEntity<Response<UserDto>> patchUser(
+            @PathVariable @NotNull(message = "userId required") Long userId,
+            @RequestBody UserLightDto userLightDto) {
+
+        authorizationService.checkWriteUser(userId);
+
+        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, userApiService.patchUserData(userLightDto)));
     }
 
     @PatchMapping("/password")
