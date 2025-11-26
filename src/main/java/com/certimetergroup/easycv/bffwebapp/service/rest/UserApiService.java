@@ -18,9 +18,9 @@ public class UserApiService {
     private final UserApiClient userApiClient;
 
     public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String query, UserRoleEnum queryRole,
-                                                   Set<Long> domainOptionIds, Set<Long> queryUserIds
+                                                   Set<Long> domainOptionIds, Set<Long> queryUserIds, String matchUsername
     ) {
-        return userApiClient.getUsers(page, pageSize, query, queryRole, domainOptionIds, queryUserIds);
+        return userApiClient.getUsers(page, pageSize, query, queryRole, domainOptionIds, queryUserIds, matchUsername);
     }
 
     public UserLightDto getUserLightByCredential(Credential credential) {
@@ -40,8 +40,7 @@ public class UserApiService {
     }
 
     public UserLightDto getRefreshTokenByUserId(Long userId) {
-        UserLightDto optionalUserLightDto = userApiClient.getUserLightById(userId);
-        return optionalUserLightDto;
+        return userApiClient.getUserLightById(userId);
     }
 
     public void patchResetPassword(Credential credential) {

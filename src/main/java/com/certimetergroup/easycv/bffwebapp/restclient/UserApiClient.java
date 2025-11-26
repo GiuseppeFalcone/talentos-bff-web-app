@@ -52,7 +52,8 @@ public class UserApiClient {
     private final RestTemplate restTemplateUserApi;
 
     public PagedResponseDto<UserLightDto> getUsers(Integer page, Integer pageSize, String searchString,
-                                                   UserRoleEnum queryRole, Set<Long> domainOptionIds, Set<Long> queryUserIds) {
+                                                   UserRoleEnum queryRole, Set<Long> domainOptionIds,
+                                                   Set<Long> queryUserIds, String matchUsername) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userApiBaseUrl)
                 .queryParam("page", page)
                 .queryParam("pageSize", pageSize);
@@ -68,6 +69,9 @@ public class UserApiClient {
 
         if (queryUserIds != null && !queryUserIds.isEmpty())
             builder.queryParam("queryUserIds", queryUserIds);
+
+        if (matchUsername != null && !matchUsername.isBlank())
+            builder.queryParam("matchUsername", matchUsername);
 
         URI uri = builder.build().toUri();
 

@@ -46,12 +46,12 @@ public class YourEmployeeController {
             @RequestParam(required = false) Set<Long> domainOptionIds,
             @RequestParam(required = false) Set<Long> queryUserIds
     ) {
-        authorizationService.checkGetUsers(queryUserIds);
+        authorizationService.checkGetUsers(queryUserIds, null);
 
         if (queryUserIds == null || !queryUserIds.isEmpty())
             queryUserIds = requestContext.getUser().getEmployeeIds();
 
-        PagedResponseDto<UserLightDto> userResponseDto = userApiService.getUsers(page, pageSize, searchString, queryRole, domainOptionIds, queryUserIds);
+        PagedResponseDto<UserLightDto> userResponseDto = userApiService.getUsers(page, pageSize, searchString, queryRole, domainOptionIds, queryUserIds, null);
 
         Set<Long> fetchedUserIds = userResponseDto.getContent().stream()
                 .map(UserLightDto::getUserId)
