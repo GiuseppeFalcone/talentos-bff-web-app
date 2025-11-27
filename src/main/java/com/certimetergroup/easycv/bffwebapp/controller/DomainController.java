@@ -42,7 +42,7 @@ public class DomainController {
     @GetMapping("/{domainId}")
     public ResponseEntity<Response<DomainDto>> getDomain(
             @PathVariable @NotNull(message = "Domain Id required") @Positive(message = "Domain Id must be > 0") Long domainId,
-            @RequestParam(required = false)Set<Long> domainOptionIds) {
+            @RequestParam(required = false) Set<Long> domainOptionIds) {
 
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, domainService.getDomain(domainId, domainOptionIds)));
     }

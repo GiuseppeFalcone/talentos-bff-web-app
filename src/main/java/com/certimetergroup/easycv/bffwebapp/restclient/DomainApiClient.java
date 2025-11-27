@@ -21,9 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,18 +63,32 @@ public class DomainApiClient {
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<PagedResponseDto<DomainDto>>> response = restTemplateDomainApi.exchange(
-                builder.toUriString(), HttpMethod.GET, entity, responseType
+                builder.toUriString(),
+                HttpMethod.GET,
+                entity,
+                responseType
         );
         return response.getBody().getData();
     }
 
     @Cacheable(value = "domain")
     public DomainDto getDomain(Long domainId, Set<Long> domainOptionIds) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(getDomainByIdUrl);
+
+        if (domainOptionIds != null && !domainOptionIds.isEmpty()) {
+            String joinedIds = domainOptionIds.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+            builder.queryParam("domainOptionIds", joinedIds);
+        }
+
+        String url = builder.buildAndExpand(Map.of("domainId", domainId)).toUriString();
+
         ParameterizedTypeReference<Response<DomainDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<DomainDto>> response = restTemplateDomainApi.exchange(
-                getDomainByIdUrl, HttpMethod.GET, entity, responseType, Map.of("domainId", domainId, "domainOptionids", domainOptionIds)
+                url, HttpMethod.GET, entity, responseType
         );
         return response.getBody().getData();
     }
@@ -83,7 +99,10 @@ public class DomainApiClient {
         HttpEntity<CreateDomainDto> entity = new HttpEntity<>(createDomainDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<DomainDto>> response = restTemplateDomainApi.exchange(
-                postDomainUrl, HttpMethod.POST, entity, responseType
+                postDomainUrl,
+                HttpMethod.POST,
+                entity,
+                responseType
         );
         return response.getBody().getData();
     }
@@ -98,7 +117,11 @@ public class DomainApiClient {
         HttpEntity<DomainDto> entity = new HttpEntity<>(domainDto, RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
 
         ResponseEntity<Response<DomainDto>> response = restTemplateDomainApi.exchange(
-                putDomainUrl, HttpMethod.PUT, entity, responseType, Map.of("domainId", domainId)
+                putDomainUrl,
+                HttpMethod.PUT,
+                entity,
+                responseType,
+                Map.of("domainId", domainId)
         );
         return response.getBody().getData();
     }
@@ -122,7 +145,11 @@ public class DomainApiClient {
         ParameterizedTypeReference<Response<DomainOptionDto>> responseType = new ParameterizedTypeReference<>() {};
         HttpEntity<Void> entity = new HttpEntity<>(RestHeaderHelper.createAuthHeaders(requestContext.getAccessToken()));
         ResponseEntity<Response<DomainOptionDto>> response = restTemplateDomainApi.exchange(
-                getDomainOptionByIdUrl, HttpMethod.GET, entity, responseType, Map.of("domainOptionId", domainOptionId)
+                getDomainOptionByIdUrl,
+                HttpMethod.GET,
+                entity,
+                responseType,
+                Map.of("domainOptionId", domainOptionId)
         );
         return response.getBody().getData();
     }
