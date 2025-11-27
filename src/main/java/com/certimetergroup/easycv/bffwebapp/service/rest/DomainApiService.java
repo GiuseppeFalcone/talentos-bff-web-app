@@ -71,18 +71,19 @@ public class DomainApiService {
 
     private Map<Long, Set<Long>> collectDomainRequirements(CurriculumDto curriculum) {
 
-        Stream<ProjectDomainOptionDto> personalSkillsStream = Optional.ofNullable(curriculum.getDomainOptions()) //
+        Stream<ProjectDomainOptionDto> personalSkillsStream = Optional.ofNullable(curriculum.getDomainOptions())
                 .orElse(Set.of())
                 .stream();
 
-        Stream<ProjectDomainOptionDto> projectSkillsStream = Optional.ofNullable(curriculum.getProjects()) //
+        Stream<ProjectDomainOptionDto> projectSkillsStream = Optional.ofNullable(curriculum.getProjects())
                 .orElse(Set.of())
                 .stream()
                 .map(project -> Optional.ofNullable(project.getDomainOptions()).orElse(Set.of()))
                 .flatMap(Set::stream);
 
         Stream<ProjectDomainOptionDto> allOptionsStream = Stream.concat(personalSkillsStream, projectSkillsStream)
-                .filter(Objects::nonNull);
+                .filter(Objects::nonNull)
+                .filter(dto -> dto.getDomainOptionId() != null);
 
         return allOptionsStream.collect(
                 Collectors.groupingBy(
