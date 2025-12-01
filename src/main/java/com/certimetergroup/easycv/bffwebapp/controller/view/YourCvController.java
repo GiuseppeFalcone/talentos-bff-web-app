@@ -104,10 +104,16 @@ public class YourCvController {
         authorizationService.checkWriteCurriculum(curriculumId);
         authorizationService.checkWriteUser(updateCurriculumDto.getUser().getUserId());
 
+        UserDto userDtoToSave = userApiService.getUserById(updateCurriculumDto.getUser().getUserId());
         UserDto oldUserDto = userApiService.getUserById(updateCurriculumDto.getUser().getUserId());
-        UserDto updatedUserDto = oldUserDto;
-        yourCvService.updateUserDomainOptions(updateCurriculumDto.getCurriculum(), updatedUserDto);
-        updatedUserDto = userApiService.replaceUserData(updateCurriculumDto.getUser().getUserId(), updateCurriculumDto.getUser());
+
+        if (updateCurriculumDto.getUser().getUserDomainOptions() != null) {
+            userDtoToSave.setUserDomainOptions(updateCurriculumDto.getUser().getUserDomainOptions());
+        }
+
+        yourCvService.updateUserDomainOptions(updateCurriculumDto.getCurriculum(), userDtoToSave);
+
+        UserDto updatedUserDto = userApiService.replaceUserData(updateCurriculumDto.getUser().getUserId(), userDtoToSave);
 
         CurriculumDto curriculumDto;
         try {

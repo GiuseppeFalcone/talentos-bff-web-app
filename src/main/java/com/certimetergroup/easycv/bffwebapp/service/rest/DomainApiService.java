@@ -8,6 +8,7 @@ import com.certimetergroup.easycv.commons.response.dto.curriculum.ProjectDomainO
 import com.certimetergroup.easycv.commons.response.dto.domain.CreateDomainDto;
 import com.certimetergroup.easycv.commons.response.dto.domain.DomainDto;
 import com.certimetergroup.easycv.commons.response.dto.domain.DomainOptionDto;
+import com.certimetergroup.easycv.commons.response.dto.user.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +45,7 @@ public class DomainApiService {
     public DomainOptionDto getDomainOption(Long domainOptionId){ return domainApiClient.getDomainOption(domainOptionId); }
 
     public void getAllCurriculumDomains(CurriculumDetailDto curriculumDetailDto) {
-        Map<Long, Set<Long>> domainRequirements = collectDomainRequirements(curriculumDetailDto.getCurriculum());
+        Map<Long, Set<Long>> domainRequirements = collectDomainRequirements(curriculumDetailDto);
 
         Set<DomainDto> domains = domainRequirements.entrySet().stream()
                 .map(entry -> {
@@ -56,43 +57,58 @@ public class DomainApiService {
 
         Set<DomainOptionDto> schools = new HashSet<>();
         Set<DomainOptionDto> degrees = new HashSet<>();
-        curriculumDetailDto.getCurriculum().getEducationHistory().stream().forEach( entry -> {
-            Long schoolId = entry.getSchoolNameId();
-            DomainOptionDto school = domainApiClient.getDomainOption(schoolId);
-            schools.add(school);
-            Long degreeId = entry.getDegreeNameId();
-            DomainOptionDto degree = domainApiClient.getDomainOption(degreeId);
-            degrees.add(degree);
-        });
+
+        if (curriculumDetailDto.getCurriculum() != null && curriculumDetailDto.getCurriculum().getEducationHistory() != null) {
+            curriculumDetailDto.getCurriculum().getEducationHistory().forEach(entry -> {
+                if (entry.getSchoolNameId() != null) {
+                    schools.add(domainApiClient.getDomainOption(entry.getSchoolNameId()));
+                }
+                if (entry.getDegreeNameId() != null) {
+                    degrees.add(domainApiClient.getDomainOption(entry.getDegreeNameId()));
+                }
+            });
+        }
+
         curriculumDetailDto.setDomains(domains);
         curriculumDetailDto.setSchools(schools);
         curriculumDetailDto.setDegrees(degrees);
     }
 
-    private Map<Long, Set<Long>> collectDomainRequirements(CurriculumDto curriculum) {
+    private Map<Long, Set<Long>> collectDomainRequirements(CurriculumDetailDto detail) {
+        CurriculumDto curriculum = detail.getCurriculum();
+        UserDto user = detail.getUser();
 
-        Stream<ProjectDomainOptionDto> personalSkillsStream = Optional.ofNullable(curriculum.getDomainOptions())
-                .orElse(Set.of())
-                .stream();
+        Stream<Map.Entry<Long, Long>> curriculumSkillsStream = Stream.empty();
+        if (curriculum != null) {
+            Stream<ProjectDomainOptionDto> personalSkills = Optional.ofNullable(curriculum.getDomainOptions())
+                    .orElse(Set.of())
+                    .stream();
 
-        Stream<ProjectDomainOptionDto> projectSkillsStream = Optional.ofNullable(curriculum.getProjects())
-                .orElse(Set.of())
-                .stream()
-                .map(project -> Optional.ofNullable(project.getDomainOptions()).orElse(Set.of()))
-                .flatMap(Set::stream);
+            Stream<ProjectDomainOptionDto> projectSkills = Optional.ofNullable(curriculum.getProjects())
+                    .orElse(Set.of())
+                    .stream()
+                    .map(project -> Optional.ofNullable(project.getDomainOptions()).orElse(Set.of()))
+                    .flatMap(Collection::stream);
 
-        Stream<ProjectDomainOptionDto> allOptionsStream = Stream.concat(personalSkillsStream, projectSkillsStream)
-                .filter(Objects::nonNull)
-                .filter(dto -> dto.getDomainOptionId() != null);
+            curriculumSkillsStream = Stream.concat(personalSkills, projectSkills)
+                    .filter(Objects::nonNull)
+                    .map(dto -> Map.entry(dto.getDomainId(), dto.getDomainOptionId()));
+        }
 
-        return allOptionsStream.collect(
-                Collectors.groupingBy(
-                        ProjectDomainOptionDto::getDomainId,
-                        Collectors.mapping(
-                                ProjectDomainOptionDto::getDomainOptionId,
-                                Collectors.toSet()
-                        )
-                )
-        );
+        Stream<Map.Entry<Long, Long>> userSkillsStream = Stream.empty();
+        if (user != null) {
+            userSkillsStream = Optional.ofNullable(user.getUserDomainOptions())
+                    .orElse(Set.of())
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .map(dto -> Map.entry(dto.getDomainId(), dto.getDomainOptionId()));
+        }
+
+        return Stream.concat(curriculumSkillsStream, userSkillsStream)
+                .filter(entry -> entry.getKey() != null && entry.getValue() != null)
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toSet())
+                ));
     }
 }
