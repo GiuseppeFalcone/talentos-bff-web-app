@@ -1,0 +1,83 @@
+package com.certimetergroup.talentos.bffwebapp.controller.view;
+
+import com.certimetergroup.talentos.bffwebapp.context.RequestContext;
+import com.certimetergroup.talentos.bffwebapp.service.views.AuthenticationService;
+import com.certimetergroup.talentos.bffwebapp.service.JwtService;
+import com.certimetergroup.talentos.bffwebapp.service.rest.UserApiService;
+import com.certimetergroup.talentos.commons.enumeration.ResponseEnum;
+import com.certimetergroup.talentos.commons.response.Response;
+import com.certimetergroup.talentos.commons.response.authentication.AccAndRefresh;
+import com.certimetergroup.talentos.commons.response.authentication.Credential;
+import com.certimetergroup.talentos.commons.response.authentication.LoginResponse;
+import com.certimetergroup.talentos.commons.response.authentication.RefreshToken;
+import com.certimetergroup.talentos.commons.response.dto.user.UserLightDto;
+import com.certimetergroup.talentos.commons.utility.HttpHeaderUtil;
+import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@Validated
+@RestController
+@RequestMapping("/api/bff-web-app/auth")
+@RequiredArgsConstructor
+@Tag(name = "BFF Authentication", description = "Endpoints to serve auth related operations for frontend")
+public class AuthenticationController {
+    private final AuthenticationService authenticationService;
+    private final UserApiService userApiService;
+    private final JwtService jwtService;
+    private final RequestContext requestContext;
+
+    @PostMapping("/login")
+    public ResponseEntity<Response<LoginResponse>> handleLogin(@RequestBody Credential credential) {
+        UserLightDto userLightDto = authenticationService.authenticateUserByCredential(credential);
+        String oldRefreshToken = userLightDto.getRefreshToken();
+
+        String[] tokens = jwtService.generateLoginTokens(userLightDto);
+
+        requestContext.setAccessToken(tokens[0]);
+        if (oldRefreshToken == null || !oldRefreshToken.equals(tokens[1]))
+            userApiService.patchUserData(userLightDto);
+
+        return ResponseEntity.ok().body(
+                new Response<>(ResponseEnum.SUCCESS,
+                        LoginResponse.builder()
+                                .userLightDto(userLightDto)
+                                .accessToken(tokens[0])
+                                .refreshToken(tokens[1])
+                                .build()
+                ));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Response<AccAndRefresh>> handleLoginRefresh(
+            @RequestBody RefreshToken refreshTokenReq,
+            @RequestHeader(value = "Authorization") @NotBlank(message = "Access token in header required") String accessToken) {
+        Long userId = Long.decode(jwtService.getClaimFromAccessToken(HttpHeaderUtil.sanitizeAccessToken(accessToken), Claims.SUBJECT, String.class));
+        requestContext.setAccessToken(HttpHeaderUtil.sanitizeAccessToken(accessToken));
+
+        UserLightDto userLightDto = userApiService.getRefreshTokenByUserId(userId);
+        String refreshTokenDb = userLightDto.getRefreshToken();
+        String refreshTokenRq = refreshTokenReq.getRefreshToken();
+
+        if (!refreshTokenRq.equals(refreshTokenDb))
+            return ResponseEntity.status(ResponseEnum.UNAUTHORIZED.httpStatus).body(new Response<>(ResponseEnum.UNAUTHORIZED));
+
+        AccAndRefresh accessAndRefreshTokenPayload = jwtService.refreshTokens(accessToken, refreshTokenRq, userLightDto);
+        requestContext.setAccessToken(accessAndRefreshTokenPayload.getAccessToken());
+        if (!accessAndRefreshTokenPayload.getRefreshToken().equals(refreshTokenRq))
+            userApiService.patchUserData(userLightDto);
+
+        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, accessAndRefreshTokenPayload));
+    }
+
+    @PostMapping("/reset")
+    public ResponseEntity<Response<Void>> resetPassword(
+            @RequestBody Credential credential) {
+        userApiService.patchResetPassword(credential);
+        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS));
+    }
+}

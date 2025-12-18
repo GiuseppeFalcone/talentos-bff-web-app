@@ -1,0 +1,471 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+    "name": "BFF Web App API Tests",
+    "description": "Collection to test the BFF Web App endpoints. Handles Authentication, 'Your CV' view aggregation, 'Your Employees' view, and Proxy endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "1. Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "pm.test(\"Response status is SUCCESS\", function () {",
+                  "    pm.expect(jsonData.status).to.eql(\"SUCCESS\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tokens received\", function () {",
+                  "    pm.expect(jsonData.payload.accessToken).to.not.be.null;",
+                  "    pm.expect(jsonData.payload.refreshToken).to.not.be.null;",
+                  "    ",
+                  "    // Save tokens to collection variables",
+                  "    pm.collectionVariables.set(\"accessToken\", jsonData.payload.accessToken);",
+                  "    pm.collectionVariables.set(\"refreshToken\", jsonData.payload.refreshToken);",
+                  "    ",
+                  "    // Also save the userId for later use",
+                  "    pm.collectionVariables.set(\"userId\", jsonData.payload.userLightDto.userId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bff-web-app/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bff-web-app",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates the user. **Note: Change credentials to a valid user in your DB.** Scripts automatically save the `accessToken`."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"accessToken\", jsonData.payload.accessToken);",
+                  "pm.collectionVariables.set(\"refreshToken\", jsonData.payload.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bff-web-app/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bff-web-app",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Refreshes the JWT tokens."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "View: Your CV",
+      "item": [
+        {
+          "name": "2. Create CV (Composite)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "pm.test(\"Status is SUCCESS\", function () {",
+                  "    pm.expect(jsonData.status).to.eql(\"SUCCESS\");",
+                  "});",
+                  "",
+                  "pm.test(\"Payload contains Curriculum and User\", function () {",
+                  "    pm.expect(jsonData.payload).to.have.property('curriculum');",
+                  "    pm.expect(jsonData.payload).to.have.property('user');",
+                  "    ",
+                  "    // Save curriculum ID",
+                  "    pm.collectionVariables.set(\"curriculumId\", jsonData.payload.curriculum.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"createCurriculumDto\": {\n    \"userId\": {{userId}},\n    \"mobilePhone\": \"+39 333 1234567\",\n    \"summary\": \"Senior Java Developer via BFF\",\n    \"maritalStatus\": false,\n    \"drivingLicense\": \"B\",\n    \"educationHistory\": [],\n    \"projects\": [],\n    \"domainOptions\": []\n  },\n  \"userDto\": {\n    \"id\": {{userId}},\n    \"email\": \"user@example.com\",\n    \"firstName\": \"Mario\",\n    \"lastName\": \"Rossi\",\n    \"userDomainOptions\": []\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bff-web-app/views/your-cv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bff-web-app",
+                "views",
+                "your-cv"
+              ]
+            },
+            "description": "Creates a new Curriculum and updates User data simultaneously. Corresponds to `CreateCurriculumDetailDto`."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get CV Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Correct ID returned\", function () {",
+                  "    pm.expect(jsonData.payload.curriculum.id).to.eql(pm.collectionVariables.get(\"curriculumId\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bff-web-app/views/your-cv?curriculumId={{curriculumId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bff-web-app",
+                "views",
+                "your-cv"
+              ],
+              "query": [
+                {
+                  "key": "curriculumId",
+                  "value": "{{curriculumId}}"
+                }
+              ]
+            },
+            "description": "Fetches the composite view (User + Curriculum + Domains)."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Update CV (Composite)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Summary Updated\", function () {",
+                  "    pm.expect(jsonData.payload.curriculum.summary).to.contain(\"UPDATED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"curriculum\": {\n    \"id\": {{curriculumId}},\n    \"userId\": {{userId}},\n    \"mobilePhone\": \"+39 333 1234567\",\n    \"summary\": \"UPDATED: Senior Java Developer\",\n    \"maritalStatus\": true,\n    \"drivingLicense\": \"B\",\n    \"educationHistory\": [],\n    \"projects\": [],\n    \"domainOptions\": []\n  },\n  \"user\": {\n    \"id\": {{userId}},\n    \"email\": \"user@example.com\",\n    \"firstName\": \"Mario\",\n    \"lastName\": \"Rossi\",\n    \"userDomainOptions\": []\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bff-web-app/views/your-cv?curriculumId={{curriculumId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bff-web-app",
+                "views",
+                "your-cv"
+              ],
+              "query": [
+                {
+                  "key": "curriculumId",
+                  "value": "{{curriculumId}}"
+                }
+              ]
+            },
+            "description": "Updates both Curriculum and User data. Corresponds to `UpdateCurriculumDto`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "View: Your Employees",
+      "item": [
+        {
+          "name": "5. Get Employees List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Response is Paged\", function () {",
+                  "    pm.expect(jsonData.payload).to.have.property(\"content\");",
+                  "    pm.expect(jsonData.payload.content).to.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bff-web-app/views/your-employees?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bff-web-app",
+                "views",
+                "your-employees"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                },
+                {
+                  "key": "searchString",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Aggregates users and their curriculums into a single list for the 'Your Employees' view."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Proxy: Curriculums",
+      "item": [
+        {
+          "name": "6. Proxy Get Curriculums",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bff-web-app/curriculums",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bff-web-app",
+                "curriculums"
+              ]
+            },
+            "description": "Direct proxy to get curriculums via BFF."
+          },
+          "response": []
+        },
+        {
+          "name": "7. Proxy Delete Curriculum",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bff-web-app/curriculums/{{curriculumId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bff-web-app",
+                "curriculums",
+                "{{curriculumId}}"
+              ]
+            },
+            "description": "Deletes the curriculum created in step 2. Uses the Proxy endpoint."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "curriculumId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

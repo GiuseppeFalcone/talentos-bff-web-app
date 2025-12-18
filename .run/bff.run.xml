@@ -3,7 +3,7 @@
     <option name="envFilePaths">
       <option value="$PROJECT_DIR$/src/main/resources/.env" />
     </option>
-    <option name="MAIN_CLASS_NAME" value="com.certimetergroup.easycv.bffwebapp.BffwebappApplication" />
+    <option name="MAIN_CLASS_NAME" value="com.certimetergroup.talentos.bffwebapp.BffwebappApplication" />
     <module name="bffwebapp" />
     <method v="2">
       <option name="Make" enabled="true" />
@@ -13,7 +13,7 @@
     <option name="envFilePaths">
       <option value="$PROJECT_DIR$/src/main/resources/.env" />
     </option>
-    <option name="MAIN_CLASS_NAME" value="com.certimetergroup.easycv.bffwebapp.BffwebappApplication" />
+    <option name="MAIN_CLASS_NAME" value="com.certimetergroup.talentos.bffwebapp.BffwebappApplication" />
     <module name="bffwebapp" />
     <method v="2">
       <option name="Make" enabled="true" />
