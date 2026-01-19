@@ -1,93 +1,238 @@
-# bff-web-app
+# TalentOS BFF Web App
 
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://git.certimetergroup.com/lutech-certimeter-academy/stage/academy_falconegiuseppe_easycv/bff-web-app.git
-git branch -M master
-git push -uf origin master
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://git.certimetergroup.com/lutech-certimeter-academy/stage/academy_falconegiuseppe_easycv/bff-web-app/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
+Backend for Frontend (BFF) service for the TalentOS project, providing aggregated endpoints and view-specific data transformations for the web frontend application.
 
 ## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+This Spring Boot application serves as the Backend for Frontend layer for the TalentOS ecosystem. It acts as an intermediary between the frontend web application and multiple backend microservices (User API, Curriculum API, and Domain API), providing:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- **View-specific endpoints**: Aggregated data tailored for specific frontend views (Your CV, Your Employees)
+- **Authentication & Authorization**: JWT-based authentication with access and refresh token management
+- **API Gateway functionality**: Proxy endpoints for direct backend service communication
+- **Caching**: Redis-based caching for improved performance
+- **API Documentation**: Interactive Swagger UI documentation
+
+## Features
+
+- 🔐 **Authentication Service**: Login, token refresh, and password reset functionality
+- 📄 **Your CV View**: Aggregated curriculum and user data for CV management
+- 👥 **Your Employee View**: Employee listing and management with pagination
+- 🚀 **Proxy Endpoints**: Direct pass-through to User, Curriculum, and Domain APIs
+- 📚 **OpenAPI Documentation**: Automatically generated API documentation via SpringDoc
+- ⚡ **Redis Caching**: Performance optimization through distributed caching
+- 🔒 **JWT Security**: Secure authentication with access and refresh tokens
+
+## Technology Stack
+
+- **Java 25**
+- **Spring Boot 3.5.7**
+- **Spring Web** - RESTful web services
+- **Spring Boot Validation** - Request validation
+- **Spring Data Redis** - Caching layer
+- **MySQL Connector** - Database connectivity
+- **Lombok** - Boilerplate code reduction
+- **MapStruct** - Object mapping
+- **JWT (jjwt)** - JSON Web Token implementation
+- **SpringDoc OpenAPI** - API documentation
+- **Maven** - Build and dependency management
+
+## Prerequisites
+
+Before running this application, ensure you have:
+
+- **Java 25** or higher installed
+- **Maven 3.6+** installed
+- **Redis Server** running (default: localhost:6379)
+- **MySQL Database** accessible
+- Access to the following backend services:
+  - User API (default: localhost:8081)
+  - Domain API (default: localhost:8082)
+  - Curriculum API (default: localhost:8083)
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/GiuseppeFalcone/talentos-bff-web-app.git
+   cd talentos-bff-web-app
+   ```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+2. **Configure environment variables**
+   
+   Copy the example environment file and configure your settings:
+   ```bash
+   cp src/main/resources/.env.example .env
+   ```
+   
+   Set the following environment variables:
+   - `SPRING_PROFILES_ACTIVE` - Active profile (dev, test, or prod)
+   - `PORT` - Application port number
+   - `JWT_ACCESS_KEY` - Secret key for access token generation
+   - `JWT_REFRESH_KEY` - Secret key for refresh token generation
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+3. **Build the project**
+   ```bash
+   ./mvnw clean install
+   ```
+
+## Configuration
+
+The application uses Spring profiles for environment-specific configuration. Configuration files are located in `src/main/resources/`:
+
+- `application.properties` - Main configuration
+- `application-dev.properties` - Development environment
+- `application-test.properties` - Test environment
+- `application-prod.properties` - Production environment
+
+### Key Configuration Properties
+
+**Server Configuration:**
+```properties
+server.port=${PORT}
+spring.application.name=bffwebapp
+```
+
+**Redis Configuration:**
+```properties
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+spring.cache.redis.time-to-live=60m
+```
+
+**JWT Configuration:**
+```properties
+security.jwt.access-expiration-seconds=1800
+security.jwt.refresh-expiration-minutes=5000
+```
+
+**Backend Service URLs:**
+- User API: `http://localhost:8081/api/users`
+- Curriculum API: `http://localhost:8083/api/curriculums`
+- Domain API: `http://localhost:8082/api/domains`
+
+## Running the Application
+
+### Using Maven
+
+```bash
+# Development mode
+export SPRING_PROFILES_ACTIVE=dev
+export PORT=8080
+export JWT_ACCESS_KEY=your_access_key
+export JWT_REFRESH_KEY=your_refresh_key
+
+./mvnw spring-boot:run
+```
+
+### Using Java
+
+```bash
+./mvnw clean package
+java -jar target/bffwebapp-0.0.1-SNAPSHOT.jar
+```
+
+The application will start on the configured port (default: 8080).
+
+## API Documentation
+
+Once the application is running, access the interactive API documentation:
+
+- **Swagger UI**: http://localhost:8080/api/bff-web-app/docs/swagger-ui.html
+- **OpenAPI Spec**: http://localhost:8080/api/bff-web-app/docs
+
+## API Endpoints
+
+### Authentication
+- `POST /api/bff-web-app/auth/login` - User login
+- `POST /api/bff-web-app/auth/refresh` - Refresh access token
+- `POST /api/bff-web-app/auth/reset` - Reset password
+
+### Your CV View
+- `GET /api/bff-web-app/views/your-cv` - Get curriculum details
+- `POST /api/bff-web-app/views/your-cv` - Create new curriculum
+- `PUT /api/bff-web-app/views/your-cv` - Update curriculum data
+
+### Your Employee View
+- `GET /api/bff-web-app/views/your-employee` - Get paginated employee list
+
+### Proxy Endpoints
+- `/api/bff-web-app/users/**` - User API proxy
+- `/api/bff-web-app/curriculums/**` - Curriculum API proxy
+- `/api/bff-web-app/domains/**` - Domain API proxy
+
+## Testing
+
+The application includes a Postman collection for API testing:
+
+```bash
+# Import the collection
+bff-api-text.postman_collection.json
+```
+
+Run tests using Maven:
+```bash
+./mvnw test
+```
+
+## Project Structure
+
+```
+src/
+├── main/
+│   ├── java/com/certimetergroup/talentos/bffwebapp/
+│   │   ├── controller/           # REST controllers
+│   │   │   ├── view/             # View-specific controllers
+│   │   │   └── ...               # Proxy controllers
+│   │   ├── service/              # Business logic
+│   │   │   ├── rest/             # Backend API client services
+│   │   │   └── views/            # View aggregation services
+│   │   ├── dto/                  # Data transfer objects
+│   │   ├── mapper/               # MapStruct mappers
+│   │   ├── context/              # Request context
+│   │   ├── restclient/           # REST client configurations
+│   │   ├── errorhandler/         # Error handling
+│   │   └── utility/              # Utility classes
+│   └── resources/
+│       ├── application.properties
+│       ├── application-{profile}.properties
+│       └── .env.example
+└── test/                         # Test files
+```
+
+## Development
+
+### Code Style
+- Uses Lombok for reducing boilerplate code
+- MapStruct for type-safe object mapping
+- Spring Boot validation for request validation
+- RESTful API design principles
+
+### Building
+```bash
+./mvnw clean compile
+```
+
+### Packaging
+```bash
+./mvnw clean package
+```
 
 ## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This project is part of the TalentOS ecosystem developed by Certimeter Group.
+
+## Authors
+
+- Giuseppe Falcone - Initial development
+
+## Support
+
+For issues, questions, or contributions, please contact the development team or open an issue in the repository.
